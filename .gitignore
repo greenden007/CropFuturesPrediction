@@ -1,0 +1,13 @@
+output/*
+ag_data/*
+data/*
+
+# pycache
+__pycache__/
+*.pyc
+
+# venv
+venv/
+.venv/
+.env
+*/.env

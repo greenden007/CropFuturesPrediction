@@ -1,0 +1,411 @@
+2026-04-16 13:44:14  INFO      ============================================================
+2026-04-16 13:44:14  INFO      CPC Outlook Archive Downloader
+2026-04-16 13:44:14  INFO        Date range : 2006-01-02 → 2026-04-16
+2026-04-16 13:44:14  INFO        Weeks      : 1059
+2026-04-16 13:44:14  INFO        Output dir : /Users/rohancherukuri/Documents/CodingProjects/School/CSCI_5527/Fproj/cpc_outlook_data
+2026-04-16 13:44:14  INFO        Dry run    : False
+2026-04-16 13:44:14  INFO      ============================================================
+2026-04-16 13:44:14  INFO      ── Week 1/1059  (2006-01-02) ──
+2026-04-16 13:44:14  INFO      20060102 – no links found (possibly no product issued this day)
+2026-04-16 13:45:28  INFO      ============================================================
+2026-04-16 13:45:28  INFO      CPC Outlook Archive Downloader
+2026-04-16 13:45:28  INFO        Date range : 2006-01-02 → 2026-04-16
+2026-04-16 13:45:28  INFO        Weeks      : 1059
+2026-04-16 13:45:28  INFO        Output dir : /Users/rohancherukuri/Documents/CodingProjects/School/CSCI_5527/Fproj/data/noaa_cpc_discussions
+2026-04-16 13:45:28  INFO        Dry run    : False
+2026-04-16 13:45:28  INFO      ============================================================
+2026-04-16 13:45:28  INFO      ── Week 1/1059  (2006-01-02) ──
+2026-04-16 13:45:28  INFO      20060102 – no links found (possibly no product issued this day)
+2026-04-16 13:45:29  INFO      ── Week 2/1059  (2006-01-09) ──
+2026-04-16 13:45:30  INFO      20060109 – no links found (possibly no product issued this day)
+2026-04-16 13:45:31  INFO      ── Week 3/1059  (2006-01-16) ──
+2026-04-16 13:45:31  INFO      20060116 – no links found (possibly no product issued this day)
+2026-04-16 13:45:32  INFO      ── Week 4/1059  (2006-01-23) ──
+2026-04-16 13:45:32  INFO      20060123 – no links found (possibly no product issued this day)
+2026-04-16 13:45:33  INFO      ── Week 5/1059  (2006-01-30) ──
+2026-04-16 13:45:33  INFO      20060130 – no links found (possibly no product issued this day)
+2026-04-16 13:45:34  INFO      ── Week 6/1059  (2006-02-06) ──
+2026-04-16 13:45:34  INFO      20060206 – no links found (possibly no product issued this day)
+2026-04-16 13:45:35  INFO      ── Week 7/1059  (2006-02-13) ──
+2026-04-16 13:45:35  INFO      20060213 – no links found (possibly no product issued this day)
+2026-04-16 13:45:36  INFO      ── Week 8/1059  (2006-02-20) ──
+2026-04-16 13:45:36  INFO      20060220 – no links found (possibly no product issued this day)
+2026-04-16 13:45:37  INFO      ── Week 9/1059  (2006-02-27) ──
+2026-04-16 13:45:37  INFO      20060227 – no links found (possibly no product issued this day)
+2026-04-16 13:45:38  INFO      ── Week 10/1059  (2006-03-06) ──
+2026-04-16 13:45:38  INFO      20060306 – no links found (possibly no product issued this day)
+2026-04-16 13:45:39  INFO      ── Week 11/1059  (2006-03-13) ──
+2026-04-16 13:45:39  INFO      20060313 – no links found (possibly no product issued this day)
+2026-04-16 13:45:40  INFO      ── Week 12/1059  (2006-03-20) ──
+2026-04-16 13:45:40  INFO      20060320 – no links found (possibly no product issued this day)
+2026-04-16 13:45:41  INFO      ── Week 13/1059  (2006-03-27) ──
+2026-04-16 13:45:41  INFO      20060327 – no links found (possibly no product issued this day)
+2026-04-16 13:45:42  INFO      ── Week 14/1059  (2006-04-03) ──
+2026-04-16 13:45:42  INFO      20060403 – no links found (possibly no product issued this day)
+2026-04-16 13:45:43  INFO      ── Week 15/1059  (2006-04-10) ──
+2026-04-16 13:45:43  INFO      20060410 – no links found (possibly no product issued this day)
+2026-04-16 13:45:44  INFO      ── Week 16/1059  (2006-04-17) ──
+2026-04-16 13:45:44  INFO      20060417 – no links found (possibly no product issued this day)
+2026-04-16 13:45:45  INFO      ── Week 17/1059  (2006-04-24) ──
+2026-04-16 13:45:45  INFO      20060424 – no links found (possibly no product issued this day)
+2026-04-16 13:45:46  INFO      ── Week 18/1059  (2006-05-01) ──
+2026-04-16 13:45:46  INFO      20060501 – no links found (possibly no product issued this day)
+2026-04-16 13:45:47  INFO      ── Week 19/1059  (2006-05-08) ──
+2026-04-16 13:45:47  INFO      20060508 – no links found (possibly no product issued this day)
+2026-04-16 13:45:48  INFO      ── Week 20/1059  (2006-05-15) ──
+2026-04-16 13:45:48  INFO      20060515 – no links found (possibly no product issued this day)
+2026-04-16 13:45:49  INFO      ── Week 21/1059  (2006-05-22) ──
+2026-04-16 13:45:49  INFO      20060522 – no links found (possibly no product issued this day)
+2026-04-16 13:45:50  INFO      ── Week 22/1059  (2006-05-29) ──
+2026-04-16 13:45:51  INFO      20060529 – no links found (possibly no product issued this day)
+2026-04-16 13:45:52  INFO      ── Week 23/1059  (2006-06-05) ──
+2026-04-16 13:45:52  INFO      20060605 – no links found (possibly no product issued this day)
+2026-04-16 13:45:53  INFO      ── Week 24/1059  (2006-06-12) ──
+2026-04-16 13:45:53  INFO      20060612 – no links found (possibly no product issued this day)
+2026-04-16 13:45:54  INFO      ── Week 25/1059  (2006-06-19) ──
+2026-04-16 13:45:54  INFO      20060619 – no links found (possibly no product issued this day)
+2026-04-16 13:45:55  INFO      ── Week 26/1059  (2006-06-26) ──
+2026-04-16 13:45:55  INFO      20060626 – no links found (possibly no product issued this day)
+2026-04-16 13:45:56  INFO      ── Week 27/1059  (2006-07-03) ──
+2026-04-16 13:45:56  INFO      20060703 – no links found (possibly no product issued this day)
+2026-04-16 13:45:57  INFO      ── Week 28/1059  (2006-07-10) ──
+2026-04-16 13:45:57  INFO      20060710 – no links found (possibly no product issued this day)
+2026-04-16 13:45:58  INFO      ── Week 29/1059  (2006-07-17) ──
+2026-04-16 13:45:58  INFO      20060717 – no links found (possibly no product issued this day)
+2026-04-16 13:45:59  INFO      ── Week 30/1059  (2006-07-24) ──
+2026-04-16 13:45:59  INFO      20060724 – no links found (possibly no product issued this day)
+2026-04-16 13:46:00  INFO      ── Week 31/1059  (2006-07-31) ──
+2026-04-16 13:46:00  INFO      20060731 – no links found (possibly no product issued this day)
+2026-04-16 13:46:01  INFO      ── Week 32/1059  (2006-08-07) ──
+2026-04-16 13:46:01  INFO      20060807 – no links found (possibly no product issued this day)
+2026-04-16 13:46:02  INFO      ── Week 33/1059  (2006-08-14) ──
+2026-04-16 13:46:02  INFO      20060814 – no links found (possibly no product issued this day)
+2026-04-16 13:46:03  INFO      ── Week 34/1059  (2006-08-21) ──
+2026-04-16 13:46:03  INFO      20060821 – no links found (possibly no product issued this day)
+2026-04-16 13:46:04  INFO      ── Week 35/1059  (2006-08-28) ──
+2026-04-16 13:46:04  INFO      20060828 – no links found (possibly no product issued this day)
+2026-04-16 13:46:05  INFO      ── Week 36/1059  (2006-09-04) ──
+2026-04-16 13:46:05  INFO      20060904 – no links found (possibly no product issued this day)
+2026-04-16 13:46:06  INFO      ── Week 37/1059  (2006-09-11) ──
+2026-04-16 13:46:06  INFO      20060911 – no links found (possibly no product issued this day)
+2026-04-16 13:46:07  INFO      ── Week 38/1059  (2006-09-18) ──
+2026-04-16 13:46:07  INFO      20060918 – no links found (possibly no product issued this day)
+2026-04-16 13:46:08  INFO      ── Week 39/1059  (2006-09-25) ──
+2026-04-16 13:46:08  INFO      20060925 – no links found (possibly no product issued this day)
+2026-04-16 13:54:07  INFO      ============================================================
+2026-04-16 13:54:07  INFO      CPC Outlook Archive Downloader
+2026-04-16 13:54:07  INFO        Date range : 2006-01-02 → 2026-04-16
+2026-04-16 13:54:07  INFO        Weeks      : 1059
+2026-04-16 13:54:07  INFO        Output dir : /Users/rohancherukuri/Documents/CodingProjects/School/CSCI_5527/Fproj/data/noaa_cpc_discussions
+2026-04-16 13:54:07  INFO        Dry run    : False
+2026-04-16 13:54:07  INFO      ============================================================
+2026-04-16 13:54:07  INFO      ── Week 1/1059  (2006-01-02) ──
+2026-04-16 13:54:08  WARNING   Could not find CSRF token
+2026-04-16 13:54:08  WARNING   Could not get CSRF token for 2006-01-02
+2026-04-16 13:54:08  INFO      20060102 – no links found (possibly no product issued this day)
+2026-04-16 13:54:09  INFO      ── Week 2/1059  (2006-01-09) ──
+2026-04-16 13:54:09  WARNING   Could not find CSRF token
+2026-04-16 13:54:09  WARNING   Could not get CSRF token for 2006-01-09
+2026-04-16 13:54:09  INFO      20060109 – no links found (possibly no product issued this day)
+2026-04-16 13:54:10  INFO      ── Week 3/1059  (2006-01-16) ──
+2026-04-16 13:54:10  WARNING   Could not find CSRF token
+2026-04-16 13:54:10  WARNING   Could not get CSRF token for 2006-01-16
+2026-04-16 13:54:10  INFO      20060116 – no links found (possibly no product issued this day)
+2026-04-16 13:54:11  INFO      ── Week 4/1059  (2006-01-23) ──
+2026-04-16 13:54:11  WARNING   Could not find CSRF token
+2026-04-16 13:54:11  WARNING   Could not get CSRF token for 2006-01-23
+2026-04-16 13:54:11  INFO      20060123 – no links found (possibly no product issued this day)
+2026-04-16 13:54:12  INFO      ── Week 5/1059  (2006-01-30) ──
+2026-04-16 13:54:12  WARNING   Could not find CSRF token
+2026-04-16 13:54:12  WARNING   Could not get CSRF token for 2006-01-30
+2026-04-16 13:54:12  INFO      20060130 – no links found (possibly no product issued this day)
+2026-04-16 13:54:13  INFO      ── Week 6/1059  (2006-02-06) ──
+2026-04-16 13:54:13  WARNING   Could not find CSRF token
+2026-04-16 13:54:13  WARNING   Could not get CSRF token for 2006-02-06
+2026-04-16 13:54:13  INFO      20060206 – no links found (possibly no product issued this day)
+2026-04-16 13:54:14  INFO      ── Week 7/1059  (2006-02-13) ──
+2026-04-16 13:54:14  WARNING   Could not find CSRF token
+2026-04-16 13:54:14  WARNING   Could not get CSRF token for 2006-02-13
+2026-04-16 13:54:14  INFO      20060213 – no links found (possibly no product issued this day)
+2026-04-16 13:57:06  INFO      ============================================================
+2026-04-16 13:57:06  INFO      CPC Outlook Archive Downloader
+2026-04-16 13:57:06  INFO        Date range : 2006-01-02 → 2026-04-16
+2026-04-16 13:57:06  INFO        Weeks      : 1059
+2026-04-16 13:57:06  INFO        Output dir : /Users/rohancherukuri/Documents/CodingProjects/School/CSCI_5527/Fproj/data/noaa_cpc_discussions
+2026-04-16 13:57:06  INFO        Dry run    : False
+2026-04-16 13:57:06  INFO      ============================================================
+2026-04-16 13:57:06  INFO      ── Week 1/1059  (2006-01-02) ──
+2026-04-16 13:57:13  INFO      20060102 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:14  INFO      ── Week 2/1059  (2006-01-09) ──
+2026-04-16 13:57:20  INFO      20060109 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:21  INFO      ── Week 3/1059  (2006-01-16) ──
+2026-04-16 13:57:28  INFO      20060116 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:29  INFO      ── Week 4/1059  (2006-01-23) ──
+2026-04-16 13:57:35  INFO      20060123 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:36  INFO      ── Week 5/1059  (2006-01-30) ──
+2026-04-16 13:57:42  INFO      20060130 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:43  INFO      ── Week 6/1059  (2006-02-06) ──
+2026-04-16 13:57:50  INFO      20060206 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:51  INFO      ── Week 7/1059  (2006-02-13) ──
+2026-04-16 13:57:57  INFO      20060213 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:57:58  INFO      ── Week 8/1059  (2006-02-20) ──
+2026-04-16 13:58:05  INFO      20060220 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:06  INFO      ── Week 9/1059  (2006-02-27) ──
+2026-04-16 13:58:12  INFO      20060227 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:13  INFO      ── Week 10/1059  (2006-03-06) ──
+2026-04-16 13:58:20  INFO      20060306 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:21  INFO      ── Week 11/1059  (2006-03-13) ──
+2026-04-16 13:58:27  INFO      20060313 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:28  INFO      ── Week 12/1059  (2006-03-20) ──
+2026-04-16 13:58:35  INFO      20060320 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:36  INFO      ── Week 13/1059  (2006-03-27) ──
+2026-04-16 13:58:42  INFO      20060327 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:43  INFO      ── Week 14/1059  (2006-04-03) ──
+2026-04-16 13:58:50  INFO      20060403 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:58:51  INFO      ── Week 15/1059  (2006-04-10) ──
+2026-04-16 13:58:59  INFO      20060410 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:00  INFO      ── Week 16/1059  (2006-04-17) ──
+2026-04-16 13:59:07  INFO      20060417 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:08  INFO      ── Week 17/1059  (2006-04-24) ──
+2026-04-16 13:59:14  INFO      20060424 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:15  INFO      ── Week 18/1059  (2006-05-01) ──
+2026-04-16 13:59:22  INFO      20060501 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:23  INFO      ── Week 19/1059  (2006-05-08) ──
+2026-04-16 13:59:29  INFO      20060508 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:30  INFO      ── Week 20/1059  (2006-05-15) ──
+2026-04-16 13:59:36  INFO      20060515 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:37  INFO      ── Week 21/1059  (2006-05-22) ──
+2026-04-16 13:59:44  INFO      20060522 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:45  INFO      ── Week 22/1059  (2006-05-29) ──
+2026-04-16 13:59:51  INFO      20060529 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 13:59:52  INFO      ── Week 23/1059  (2006-06-05) ──
+2026-04-16 13:59:59  INFO      20060605 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:00  INFO      ── Week 24/1059  (2006-06-12) ──
+2026-04-16 14:00:06  INFO      20060612 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:07  INFO      ── Week 25/1059  (2006-06-19) ──
+2026-04-16 14:00:13  INFO      20060619 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:14  INFO      ── Week 26/1059  (2006-06-26) ──
+2026-04-16 14:00:21  INFO      20060626 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:22  INFO      ── Week 27/1059  (2006-07-03) ──
+2026-04-16 14:00:28  INFO      20060703 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:29  INFO      ── Week 28/1059  (2006-07-10) ──
+2026-04-16 14:00:35  INFO      20060710 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:36  INFO      ── Week 29/1059  (2006-07-17) ──
+2026-04-16 14:00:43  INFO      20060717 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:44  INFO      ── Week 30/1059  (2006-07-24) ──
+2026-04-16 14:00:50  INFO      20060724 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:51  INFO      ── Week 31/1059  (2006-07-31) ──
+2026-04-16 14:00:58  INFO      20060731 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:00:59  INFO      ── Week 32/1059  (2006-08-07) ──
+2026-04-16 14:01:05  INFO      20060807 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:06  INFO      ── Week 33/1059  (2006-08-14) ──
+2026-04-16 14:01:12  INFO      20060814 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:13  INFO      ── Week 34/1059  (2006-08-21) ──
+2026-04-16 14:01:20  INFO      20060821 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:21  INFO      ── Week 35/1059  (2006-08-28) ──
+2026-04-16 14:01:27  INFO      20060828 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:28  INFO      ── Week 36/1059  (2006-09-04) ──
+2026-04-16 14:01:35  INFO      20060904 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:36  INFO      ── Week 37/1059  (2006-09-11) ──
+2026-04-16 14:01:42  INFO      20060911 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:43  INFO      ── Week 38/1059  (2006-09-18) ──
+2026-04-16 14:01:49  INFO      20060918 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:50  INFO      ── Week 39/1059  (2006-09-25) ──
+2026-04-16 14:01:57  INFO      20060925 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:01:58  INFO      ── Week 40/1059  (2006-10-02) ──
+2026-04-16 14:02:04  INFO      20061002 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:05  INFO      ── Week 41/1059  (2006-10-09) ──
+2026-04-16 14:02:11  INFO      20061009 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:12  INFO      ── Week 42/1059  (2006-10-16) ──
+2026-04-16 14:02:19  INFO      20061016 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:20  INFO      ── Week 43/1059  (2006-10-23) ──
+2026-04-16 14:02:26  INFO      20061023 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:27  INFO      ── Week 44/1059  (2006-10-30) ──
+2026-04-16 14:02:34  INFO      20061030 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:35  INFO      ── Week 45/1059  (2006-11-06) ──
+2026-04-16 14:02:41  INFO      20061106 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:42  INFO      ── Week 46/1059  (2006-11-13) ──
+2026-04-16 14:02:48  INFO      20061113 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:49  INFO      ── Week 47/1059  (2006-11-20) ──
+2026-04-16 14:02:56  INFO      20061120 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:02:57  INFO      ── Week 48/1059  (2006-11-27) ──
+2026-04-16 14:03:03  INFO      20061127 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:03:04  INFO      ── Week 49/1059  (2006-12-04) ──
+2026-04-16 14:03:11  INFO      20061204 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:03:12  INFO      ── Week 50/1059  (2006-12-11) ──
+2026-04-16 14:03:12  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610temp.20061211.fcst.gif
+2026-04-16 14:03:17  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610temp.20061211.fcst.gif
+2026-04-16 14:03:27  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610temp.20061211.fcst.gif
+2026-04-16 14:03:27  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610temp.20061211.fcst.gif
+2026-04-16 14:03:27  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610prcp.20061211.fcst.gif
+2026-04-16 14:03:32  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610prcp.20061211.fcst.gif
+2026-04-16 14:03:42  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610prcp.20061211.fcst.gif
+2026-04-16 14:03:42  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610prcp.20061211.fcst.gif
+2026-04-16 14:03:42  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610hghts.20061211.fcst.gif
+2026-04-16 14:03:47  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610hghts.20061211.fcst.gif
+2026-04-16 14:03:57  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610hghts.20061211.fcst.gif
+2026-04-16 14:03:57  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/610hghts.20061211.fcst.gif
+2026-04-16 14:03:57  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814temp.20061211.fcst.gif
+2026-04-16 14:04:02  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814temp.20061211.fcst.gif
+2026-04-16 14:04:13  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814temp.20061211.fcst.gif
+2026-04-16 14:04:13  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814temp.20061211.fcst.gif
+2026-04-16 14:04:13  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814prcp.20061211.fcst.gif
+2026-04-16 14:04:18  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814prcp.20061211.fcst.gif
+2026-04-16 14:04:28  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814prcp.20061211.fcst.gif
+2026-04-16 14:04:28  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814prcp.20061211.fcst.gif
+2026-04-16 14:04:28  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814hghts.20061211.fcst.gif
+2026-04-16 14:04:33  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814hghts.20061211.fcst.gif
+2026-04-16 14:04:43  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814hghts.20061211.fcst.gif
+2026-04-16 14:04:43  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/11/814hghts.20061211.fcst.gif
+2026-04-16 14:04:43  INFO      20061211 – found=6  downloaded=0  skipped=0  errors=6
+2026-04-16 14:04:44  INFO      ── Week 51/1059  (2006-12-18) ──
+2026-04-16 14:04:44  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610temp.20061218.fcst.gif
+2026-04-16 14:04:49  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610temp.20061218.fcst.gif
+2026-04-16 14:04:59  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610temp.20061218.fcst.gif
+2026-04-16 14:04:59  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610temp.20061218.fcst.gif
+2026-04-16 14:04:59  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610prcp.20061218.fcst.gif
+2026-04-16 14:05:04  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610prcp.20061218.fcst.gif
+2026-04-16 14:05:14  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610prcp.20061218.fcst.gif
+2026-04-16 14:05:14  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610prcp.20061218.fcst.gif
+2026-04-16 14:05:14  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610hghts.20061218.fcst.gif
+2026-04-16 14:05:19  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610hghts.20061218.fcst.gif
+2026-04-16 14:05:29  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610hghts.20061218.fcst.gif
+2026-04-16 14:05:29  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/610hghts.20061218.fcst.gif
+2026-04-16 14:05:29  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814temp.20061218.fcst.gif
+2026-04-16 14:05:34  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814temp.20061218.fcst.gif
+2026-04-16 14:05:44  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814temp.20061218.fcst.gif
+2026-04-16 14:05:44  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814temp.20061218.fcst.gif
+2026-04-16 14:05:44  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814prcp.20061218.fcst.gif
+2026-04-16 14:05:49  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814prcp.20061218.fcst.gif
+2026-04-16 14:05:59  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814prcp.20061218.fcst.gif
+2026-04-16 14:05:59  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814prcp.20061218.fcst.gif
+2026-04-16 14:05:59  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814hghts.20061218.fcst.gif
+2026-04-16 14:06:04  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814hghts.20061218.fcst.gif
+2026-04-16 14:06:15  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814hghts.20061218.fcst.gif
+2026-04-16 14:06:15  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2006/12/18/814hghts.20061218.fcst.gif
+2026-04-16 14:06:15  INFO      20061218 – found=6  downloaded=0  skipped=0  errors=6
+2026-04-16 14:06:16  INFO      ── Week 52/1059  (2006-12-25) ──
+2026-04-16 14:06:22  INFO      20061225 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:06:23  INFO      ── Week 53/1059  (2007-01-01) ──
+2026-04-16 14:06:30  INFO      20070101 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:06:31  INFO      ── Week 54/1059  (2007-01-08) ──
+2026-04-16 14:06:37  INFO      20070108 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:06:38  INFO      ── Week 55/1059  (2007-01-15) ──
+2026-04-16 14:06:45  INFO      20070115 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:06:46  INFO      ── Week 56/1059  (2007-01-22) ──
+2026-04-16 14:06:52  INFO      20070122 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:06:53  INFO      ── Week 57/1059  (2007-01-29) ──
+2026-04-16 14:07:00  INFO      20070129 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:01  INFO      ── Week 58/1059  (2007-02-05) ──
+2026-04-16 14:07:07  INFO      20070205 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:08  INFO      ── Week 59/1059  (2007-02-12) ──
+2026-04-16 14:07:15  INFO      20070212 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:16  INFO      ── Week 60/1059  (2007-02-19) ──
+2026-04-16 14:07:24  INFO      20070219 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:25  INFO      ── Week 61/1059  (2007-02-26) ──
+2026-04-16 14:07:32  INFO      20070226 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:33  INFO      ── Week 62/1059  (2007-03-05) ──
+2026-04-16 14:07:42  INFO      20070305 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:43  INFO      ── Week 63/1059  (2007-03-12) ──
+2026-04-16 14:07:54  INFO      20070312 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:07:55  INFO      ── Week 64/1059  (2007-03-19) ──
+2026-04-16 14:08:07  INFO      20070319 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:08  INFO      ── Week 65/1059  (2007-03-26) ──
+2026-04-16 14:08:14  INFO      20070326 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:15  INFO      ── Week 66/1059  (2007-04-02) ──
+2026-04-16 14:08:22  INFO      20070402 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:23  INFO      ── Week 67/1059  (2007-04-09) ──
+2026-04-16 14:08:29  INFO      20070409 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:30  INFO      ── Week 68/1059  (2007-04-16) ──
+2026-04-16 14:08:37  INFO      20070416 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:38  INFO      ── Week 69/1059  (2007-04-23) ──
+2026-04-16 14:08:44  INFO      20070423 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:45  INFO      ── Week 70/1059  (2007-04-30) ──
+2026-04-16 14:08:52  INFO      20070430 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:08:53  INFO      ── Week 71/1059  (2007-05-07) ──
+2026-04-16 14:08:59  INFO      20070507 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:00  INFO      ── Week 72/1059  (2007-05-14) ──
+2026-04-16 14:09:06  INFO      20070514 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:07  INFO      ── Week 73/1059  (2007-05-21) ──
+2026-04-16 14:09:14  INFO      20070521 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:15  INFO      ── Week 74/1059  (2007-05-28) ──
+2026-04-16 14:09:21  INFO      20070528 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:22  INFO      ── Week 75/1059  (2007-06-04) ──
+2026-04-16 14:09:29  INFO      20070604 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:30  INFO      ── Week 76/1059  (2007-06-11) ──
+2026-04-16 14:09:36  INFO      20070611 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:09:37  INFO      ── Week 77/1059  (2007-06-18) ──
+2026-04-16 14:09:37  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610temp.20070618.fcst.gif
+2026-04-16 14:09:42  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610temp.20070618.fcst.gif
+2026-04-16 14:09:52  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610temp.20070618.fcst.gif
+2026-04-16 14:09:52  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610temp.20070618.fcst.gif
+2026-04-16 14:09:52  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610prcp.20070618.fcst.gif
+2026-04-16 14:09:57  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610prcp.20070618.fcst.gif
+2026-04-16 14:10:07  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610prcp.20070618.fcst.gif
+2026-04-16 14:10:07  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610prcp.20070618.fcst.gif
+2026-04-16 14:10:07  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610hghts.20070618.fcst.gif
+2026-04-16 14:10:12  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610hghts.20070618.fcst.gif
+2026-04-16 14:10:22  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610hghts.20070618.fcst.gif
+2026-04-16 14:10:22  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/610hghts.20070618.fcst.gif
+2026-04-16 14:10:22  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814temp.20070618.fcst.gif
+2026-04-16 14:10:27  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814temp.20070618.fcst.gif
+2026-04-16 14:10:37  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814temp.20070618.fcst.gif
+2026-04-16 14:10:37  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814temp.20070618.fcst.gif
+2026-04-16 14:10:37  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814prcp.20070618.fcst.gif
+2026-04-16 14:10:43  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814prcp.20070618.fcst.gif
+2026-04-16 14:10:53  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814prcp.20070618.fcst.gif
+2026-04-16 14:10:53  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814prcp.20070618.fcst.gif
+2026-04-16 14:10:53  WARNING   HTTP ? on attempt 1/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814hghts.20070618.fcst.gif
+2026-04-16 14:10:58  WARNING   HTTP ? on attempt 2/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814hghts.20070618.fcst.gif
+2026-04-16 14:11:08  WARNING   HTTP ? on attempt 3/3: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814hghts.20070618.fcst.gif
+2026-04-16 14:11:08  ERROR     All 3 attempts failed for: https://www.cpc.ncep.noaa.gov/products/archives/short_range/2007/06/18/814hghts.20070618.fcst.gif
+2026-04-16 14:11:08  INFO      20070618 – found=6  downloaded=0  skipped=0  errors=6
+2026-04-16 14:11:09  INFO      ── Week 78/1059  (2007-06-25) ──
+2026-04-16 14:11:15  INFO      20070625 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:16  INFO      ── Week 79/1059  (2007-07-02) ──
+2026-04-16 14:11:23  INFO      20070702 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:24  INFO      ── Week 80/1059  (2007-07-09) ──
+2026-04-16 14:11:30  INFO      20070709 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:31  INFO      ── Week 81/1059  (2007-07-16) ──
+2026-04-16 14:11:37  INFO      20070716 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:38  INFO      ── Week 82/1059  (2007-07-23) ──
+2026-04-16 14:11:45  INFO      20070723 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:46  INFO      ── Week 83/1059  (2007-07-30) ──
+2026-04-16 14:11:52  INFO      20070730 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:11:53  INFO      ── Week 84/1059  (2007-08-06) ──
+2026-04-16 14:12:00  INFO      20070806 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:01  INFO      ── Week 85/1059  (2007-08-13) ──
+2026-04-16 14:12:07  INFO      20070813 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:08  INFO      ── Week 86/1059  (2007-08-20) ──
+2026-04-16 14:12:14  INFO      20070820 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:15  INFO      ── Week 87/1059  (2007-08-27) ──
+2026-04-16 14:12:22  INFO      20070827 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:23  INFO      ── Week 88/1059  (2007-09-03) ──
+2026-04-16 14:12:29  INFO      20070903 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:30  INFO      ── Week 89/1059  (2007-09-10) ──
+2026-04-16 14:12:37  INFO      20070910 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:38  INFO      ── Week 90/1059  (2007-09-17) ──
+2026-04-16 14:12:44  INFO      20070917 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:45  INFO      ── Week 91/1059  (2007-09-24) ──
+2026-04-16 14:12:51  INFO      20070924 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:12:52  INFO      ── Week 92/1059  (2007-10-01) ──
+2026-04-16 14:12:59  INFO      20071001 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:00  INFO      ── Week 93/1059  (2007-10-08) ──
+2026-04-16 14:13:06  INFO      20071008 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:07  INFO      ── Week 94/1059  (2007-10-15) ──
+2026-04-16 14:13:14  INFO      20071015 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:15  INFO      ── Week 95/1059  (2007-10-22) ──
+2026-04-16 14:13:21  INFO      20071022 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:22  INFO      ── Week 96/1059  (2007-10-29) ──
+2026-04-16 14:13:29  INFO      20071029 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:30  INFO      ── Week 97/1059  (2007-11-05) ──
+2026-04-16 14:13:36  INFO      20071105 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:37  INFO      ── Week 98/1059  (2007-11-12) ──
+2026-04-16 14:13:44  INFO      20071112 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:45  INFO      ── Week 99/1059  (2007-11-19) ──
+2026-04-16 14:13:51  INFO      20071119 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:13:52  INFO      ── Week 100/1059  (2007-11-26) ──
+2026-04-16 14:13:59  INFO      20071126 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:14:00  INFO      ── Week 101/1059  (2007-12-03) ──
+2026-04-16 14:14:06  INFO      20071203 – found=6  downloaded=6  skipped=0  errors=0
+2026-04-16 14:14:07  INFO      ── Week 102/1059  (2007-12-10) ──
