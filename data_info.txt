@@ -1,0 +1,46 @@
+Data Folder Summary
+===================
+
+The data/ folder contains agricultural and financial data organized into 4 subdirectories:
+
+
+1. futures_prices/ - Commodity Futures Data
+-------------------------------------------
+- 3 CSV files: corn_futures.csv, soybeans_futures.csv, wheat_futures.csv (~220KB each)
+- Data: Daily OHLCV (Open, High, Low, Close, Volume) price data from 2006 onwards
+- Columns: Date, Close, High, Low, Open, Volume with ticker symbols (e.g., ZC=F for corn)
+
+
+2. usda_wasde/ - USDA Supply/Demand Reports
+-------------------------------------------
+- psd_grains_pulses.csv (50MB): Global grain/pulse statistics from 1960s-2025 with commodity 
+  codes, country-level data, market years, attributes (production, stocks, exports, etc.)
+- wasde_historical.zip: Archived WASDE report data
+- usda_historical_wasde_report_data/: Monthly CSV files (2010-2026) containing detailed WASDE 
+  report entries with attributes like projections, estimates, reliability statistics
+
+
+3. usda_crop_progress/ - Weekly Crop Progress Reports
+-----------------------------------------------------
+- ~1000 text files (2006-2026) containing weekly USDA NASS "Crop Progress" reports
+- Naming: YYYY-MM-DD_CropProg-... format (some use progXXYY format from 2018+)
+- Content: Planting percentages, condition ratings, harvest progress by state for major crops 
+  (corn, soybeans, wheat, rice, etc.)
+
+
+4. noaa_cpc_discussions/ - Climate/Weather Outlook Data
+---------------------------------------------------------
+- cpc_outlook_data/: Nested by year (2006-2026) -> month -> day
+- Weekly outlook images: GIF forecast maps (6 per week) including:
+  * 6-10 day and 8-14 day outlooks for precipitation, temperature, and 500mb heights
+  * Filenames like 610prcp.YYYYMMDD.fcst.gif, 814temp.YYYYMMDD.fcst.gif
+
+
+Time Coverage
+-------------
+All datasets span roughly 2006-2026, with some variation in granularity:
+- Daily: futures prices
+- Weekly: crop progress reports, weather outlooks  
+- Monthly: WASDE reports
+
+Generated: April 19, 2026

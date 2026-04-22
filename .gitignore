@@ -11,3 +11,15 @@ venv/
 .venv/
 .env
 */.env
+
+.claude/
+CLAUDE.md
+
+# data
+data/*
+merged_data/*
+processed_data/*
+training/wandb/*
+*.zip
+
+images/
