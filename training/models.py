@@ -67,6 +67,11 @@ class DualStreamLSTM(nn.Module):
         Returns:
             output: (batch, output_dim)
         """
+        # Both streams must have the same sequence length
+        # (price data is daily, fundamentals are monthly - resampling required)
+        assert price_x.size(1) == fund_x.size(1), \
+            f"Sequence length mismatch: price={price_x.size(1)}, fund={fund_x.size(1)}"
+
         # Process price stream
         price_out, _ = self.price_lstm(price_x)
         price_out = price_out[:, -1, :]  # Take last timestep
@@ -140,19 +145,18 @@ class ResNet1D(nn.Module):
         self.conv1 = nn.Conv1d(input_dim, hidden_dim, kernel_size=7, padding=3)
         self.bn1 = nn.BatchNorm1d(hidden_dim)
         
-        # Residual blocks
+        # Residual blocks with progressive channel doubling
         self.blocks = nn.ModuleList()
+        channels = [hidden_dim] + [hidden_dim * (2 ** (i+1)) for i in range(num_blocks)]
         for i in range(num_blocks):
-            in_c = hidden_dim if i == 0 else hidden_dim * 2
-            out_c = hidden_dim * 2
             self.blocks.append(
-                ResidualBlock(in_c, out_c, dropout=dropout)
+                ResidualBlock(channels[i], channels[i+1], dropout=dropout)
             )
-        
+
         # Global average pooling and FC
         self.avg_pool = nn.AdaptiveAvgPool1d(1)
-        
-        final_dim = hidden_dim * 2
+
+        final_dim = channels[-1]
         self.fc = nn.Sequential(
             nn.Linear(final_dim, final_dim // 2),
             nn.ReLU(),
@@ -267,9 +271,9 @@ class TransformerModel(nn.Module):
         
         # Transformer encoding
         out = self.transformer_encoder(out)
-        
-        # Take mean of all timesteps (can also use last timestep)
-        out = out.mean(dim=1)
+
+        # Take last timestep (consistent with LSTM/GRU models)
+        out = out[:, -1, :]
         
         # Output
         output = self.output_fc(out)
@@ -295,7 +299,11 @@ class GRUModel(nn.Module):
     def __init__(self, input_dim=30, hidden_dim=64, num_layers=2,
                  output_dim=1, dropout=0.2, bidirectional=False):
         super(GRUModel, self).__init__()
-        
+
+        if bidirectional:
+            import warnings
+            warnings.warn("Bidirectional GRU uses future timesteps — only use for classification, not forecasting")
+
         self.gru = nn.GRU(
             input_dim, hidden_dim, num_layers,
             batch_first=True, dropout=dropout if num_layers > 1 else 0,
@@ -333,19 +341,110 @@ class GRUModel(nn.Module):
 
 
 # Factory function for creating models
+class SingleStreamLSTM(nn.Module):
+    """
+    Single-Stream LSTM Ablation Model
+    
+    Ablation of DualStreamLSTM that concatenates all features
+    into a single LSTM stream instead of processing price and
+    fundamentals separately. Tests if dual-stream architecture
+    provides benefit over simple concatenation.
+    
+    Args:
+        input_dim: Total dimension of all features
+        hidden_dim: LSTM hidden dimension
+        num_layers: Number of LSTM layers
+        output_dim: Output dimension (1 for regression)
+        dropout: Dropout rate
+    """
+    def __init__(self, input_dim=30, hidden_dim=64, num_layers=2,
+                 output_dim=1, dropout=0.2):
+        super(SingleStreamLSTM, self).__init__()
+        
+        self.lstm = nn.LSTM(
+            input_dim, hidden_dim, num_layers,
+            batch_first=True, dropout=dropout if num_layers > 1 else 0
+        )
+        
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim // 2, output_dim)
+        )
+        
+    def forward(self, x):
+        """
+        Args:
+            x: (batch, seq_len, input_dim) concatenated features
+        Returns:
+            output: (batch, output_dim)
+        """
+        lstm_out, _ = self.lstm(x)
+        lstm_out = lstm_out[:, -1, :]  # Last timestep
+        output = self.fc(lstm_out)
+        return output
+
+
+class LSTMAblation(nn.Module):
+    """
+    LSTM with Feature Ablation
+    
+    Standard LSTM that can exclude specific feature groups
+    for ablation studies (e.g., no weather, no WASDE).
+    
+    Args:
+        input_dim: Dimension of included features
+        hidden_dim: LSTM hidden dimension
+        num_layers: Number of LSTM layers
+        output_dim: Output dimension
+        dropout: Dropout rate
+        ablation_type: String describing what's ablated
+    """
+    def __init__(self, input_dim=30, hidden_dim=64, num_layers=2,
+                 output_dim=1, dropout=0.2, ablation_type='none'):
+        super(LSTMAblation, self).__init__()
+        
+        self.ablation_type = ablation_type
+        
+        self.lstm = nn.LSTM(
+            input_dim, hidden_dim, num_layers,
+            batch_first=True, dropout=dropout if num_layers > 1 else 0
+        )
+        
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, output_dim)
+        )
+        
+    def forward(self, x):
+        """
+        Args:
+            x: (batch, seq_len, input_dim)
+        Returns:
+            output: (batch, output_dim)
+        """
+        lstm_out, _ = self.lstm(x)
+        lstm_out = lstm_out[:, -1, :]
+        output = self.fc(lstm_out)
+        return output
+
+
 def create_model(model_name, **kwargs):
     """
     Factory function to create models by name.
     
     Args:
-        model_name: One of ['dual_stream_lstm', 'resnet', 'transformer', 'gru']
+        model_name: One of 'dual_stream_lstm', 'resnet', 'transformer', 'gru',
+                   'single_stream_lstm', 'lstm_ablation'
         **kwargs: Model-specific arguments
-    
-    Returns:
-        model: Instantiated model
     """
     models = {
         'dual_stream_lstm': DualStreamLSTM,
+        'single_stream_lstm': SingleStreamLSTM,
+        'lstm_ablation': LSTMAblation,
         'resnet': ResNet1D,
         'transformer': TransformerModel,
         'gru': GRUModel

@@ -322,7 +322,9 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         'test_metrics': {
             'mse': float(test_metrics['mse']),
             'mae': float(test_metrics['mae']),
-            'directional_acc': float(test_metrics['directional_acc'])
+            'directional_acc': float(test_metrics['directional_acc']),
+            'predictions': test_metrics['predictions'].tolist(),
+            'targets': test_metrics['targets'].tolist()
         },
         'n_parameters': n_params
     }
@@ -401,8 +403,10 @@ def main():
     """Main training script."""
     parser = argparse.ArgumentParser(description='Train crop futures prediction models')
     parser.add_argument('--model', type=str, default='all',
-                       choices=['all', 'dual_stream_lstm', 'resnet', 'transformer', 'gru'],
+                       choices=['all', 'dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'gru'],
                        help='Model to train')
+    parser.add_argument('--seed', type=int, default=None,
+                       help='Random seed for reproducibility')
     parser.add_argument('--commodity', type=str, default='corn',
                        choices=['corn', 'soybeans', 'wheat'],
                        help='Commodity to predict')
@@ -428,6 +432,17 @@ def main():
                        help='Output directory for results')
     
     args = parser.parse_args()
+    
+    # Set random seed if provided
+    if args.seed is not None:
+        import torch
+        import random
+        torch.manual_seed(args.seed)
+        np.random.seed(args.seed)
+        random.seed(args.seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(args.seed)
+        print(f"Random seed set to: {args.seed}")
     
     # Target column based on commodity
     target_map = {
@@ -475,7 +490,7 @@ def main():
     
     # Define models to train
     if args.model == 'all':
-        models_to_train = ['dual_stream_lstm', 'resnet', 'transformer', 'gru']
+        models_to_train = ['dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'gru']
     else:
         models_to_train = [args.model]
     
