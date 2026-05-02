@@ -343,7 +343,18 @@ def run_trading_simulation(
     )
     
     results = strategy.simulate(signals_df)
-    
+
+    # Calculate buy-and-hold benchmark for same period
+    test_prices_benchmark = test_df[target_col].values
+    bh_returns = np.diff(test_prices_benchmark) / test_prices_benchmark[:-1]
+    bh_sharpe = np.mean(bh_returns) / np.std(bh_returns) * np.sqrt(252) if len(bh_returns) > 1 and np.std(bh_returns) > 0 else 0.0
+    bh_total_return = (test_prices_benchmark[-1] - test_prices_benchmark[0]) / test_prices_benchmark[0] * 100
+
+    # Add benchmark to results
+    results['buy_hold_sharpe'] = bh_sharpe
+    results['buy_hold_return_pct'] = bh_total_return
+    results['sharpe_improvement'] = results['sharpe_ratio'] - bh_sharpe
+
     # Print summary
     if 'error' in results:
         print(f"  Error: {results['error']}")
@@ -356,7 +367,11 @@ def run_trading_simulation(
         print(f"  Win Rate: {results['win_rate']:.2%}")
         print(f"  Profit Factor: {results['profit_factor']:.2f}")
         print(f"  Final Capital: ${results['final_capital']:,.2f}")
-    
+        print(f"\nBenchmark (Buy & Hold):")
+        print(f"  Total Return: {bh_total_return:.2f}%")
+        print(f"  Sharpe Ratio: {bh_sharpe:.3f}")
+        print(f"  Improvement: {results['sharpe_improvement']:+.3f}")
+
     return results
 
 

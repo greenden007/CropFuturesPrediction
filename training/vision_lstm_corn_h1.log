@@ -1,0 +1,17 @@
+Loading data from ../merged_data/daily_unified.csv
+Loaded 5103 rows from ../merged_data/daily_unified.csv
+Date range: 2006-01-03 00:00:00 to 2026-04-16 00:00:00
+
+============================================================
+Training VISION_DUAL_STREAM_LSTM
+============================================================
+Using device: cpu
+Split sizes: train=3572, val=765, test=766
+Warning: Could not load image processor: [Errno 2] No such file or directory: '../cleaning/processed_data/cpc_weather_outlook_index.csv'
+Warning: Could not load image processor: [Errno 2] No such file or directory: '../cleaning/processed_data/cpc_weather_outlook_index.csv'
+Warning: Could not load image processor: [Errno 2] No such file or directory: '../cleaning/processed_data/cpc_weather_outlook_index.csv'
+Model: vision_dual_stream_lstm, Parameters: 640,577
+
+Epoch 1/50
+Training:   0%|          | 0/111 [00:00<?, ?it/s]Training:   1%|          | 1/111 [00:13<25:19, 13.81s/it]Training:   2%|▏         | 2/111 [00:26<23:26, 12.91s/it]Training:   3%|▎         | 3/111 [00:37<22:20, 12.41s/it]Training:   4%|▎         | 4/111 [00:50<22:23, 12.55s/it]Training:   5%|▍         | 5/111 [01:04<23:07, 13.09s/it]Training:   5%|▌         | 6/111 [01:18<23:19, 13.33s/it]Training:   6%|▋         | 7/111 [01:30<22:13, 12.82s/it]Training:   7%|▋         | 8/111 [01:41<20:57, 12.21s/it]Training:   8%|▊         | 9/111 [01:52<20:16, 11.92s/it]Training:   9%|▉         | 10/111 [02:04<20:21, 12.09s/it]Training:  10%|▉         | 11/111 [02:16<20:07, 12.07s/it]Training:  11%|█         | 12/111 [02:28<19:53, 12.06s/it]Training:  12%|█▏        | 13/111 [02:43<20:44, 12.70s/it]Training:  13%|█▎        | 14/111 [02:56<20:40, 12.79s/it]Training:  14%|█▎        | 15/111 [03:08<20:06, 12.57s/it]Training:  14%|█▍        | 16/111 [03:19<19:25, 12.27s/it]Training:  15%|█▌        | 17/111 [03:31<18:50, 12.03s/it]Training:  16%|█▌        | 18/111 [03:43<18:34, 11.99s/it]Training:  17%|█▋        | 19/111 [03:56<19:12, 12.52s/it]Training:  18%|█▊        | 20/111 [04:11<19:53, 13.12s/it]Training:  19%|█▉        | 21/111 [04:22<18:57, 12.64s/it]Training:  20%|█▉        | 22/111 [04:33<18:02, 12.16s/it]Training:  21%|██        | 23/111 [04:44<17:19, 11.81s/it]Training:  22%|██▏       | 24/111 [04:55<16:31, 11.40s/it]/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown
+  warnings.warn('resource_tracker: There appear to be %d '

@@ -1,10 +1,12 @@
 """
 Training Script for Crop Futures Prediction Models
 
-Trains and evaluates 4 architectures:
+Trains and evaluates neural architectures including:
 - Dual-Stream LSTM
+- Vision Dual-Stream LSTM
 - ResNet1D
 - Transformer
+- Temporal Fusion Transformer (TFT-style)
 - GRU
 
 Supports:
@@ -53,36 +55,64 @@ class EarlyStopping:
             self.counter = 0
 
 
-def train_epoch(model, train_loader, criterion, optimizer, device, model_type='gru'):
+def train_epoch(model, train_loader, criterion, optimizer, device, model_type='gru', scaler=None):
     """Train for one epoch."""
     model.train()
     total_loss = 0.0
     n_batches = 0
     
     for batch in tqdm(train_loader, desc='Training'):
-        if model_type == 'dual_stream_lstm':
-            price_x, fund_x, y = batch
-            price_x = price_x.to(device)
-            fund_x = fund_x.to(device)
-            y = y.to(device)
+        if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
+            if model_type == 'vision_dual_stream_lstm':
+                price_x, fund_x, vision_x, y = batch
+                vision_x = vision_x.to(device, non_blocking=True)
+            else:
+                price_x, fund_x, y = batch
+                vision_x = None
+            price_x = price_x.to(device, non_blocking=True)
+            fund_x = fund_x.to(device, non_blocking=True)
+            y = y.to(device, non_blocking=True)
             
             optimizer.zero_grad()
-            outputs = model(price_x, fund_x)
+            use_amp = (device.type == 'cuda' and scaler is not None)
+            if use_amp:
+                with torch.amp.autocast('cuda'):
+                    if vision_x is not None:
+                        outputs = model(price_x, fund_x, vision_x)
+                    else:
+                        outputs = model(price_x, fund_x)
+            else:
+                if vision_x is not None:
+                    outputs = model(price_x, fund_x, vision_x)
+                else:
+                    outputs = model(price_x, fund_x)
         else:
             x, y = batch
-            x = x.to(device)
-            y = y.to(device)
+            x = x.to(device, non_blocking=True)
+            y = y.to(device, non_blocking=True)
             
             optimizer.zero_grad()
-            outputs = model(x)
+            use_amp = (device.type == 'cuda' and scaler is not None)
+            if use_amp:
+                with torch.amp.autocast('cuda'):
+                    outputs = model(x)
+            else:
+                outputs = model(x)
         
-        loss = criterion(outputs, y)
-        loss.backward()
-        
-        # Gradient clipping
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        
-        optimizer.step()
+        use_amp = (device.type == 'cuda' and scaler is not None)
+        if use_amp:
+            with torch.amp.autocast('cuda'):
+                loss = criterion(outputs, y)
+            scaler.scale(loss).backward()
+            scaler.unscale_(optimizer)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            scaler.step(optimizer)
+            scaler.update()
+        else:
+            loss = criterion(outputs, y)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            optimizer.step()
         
         total_loss += loss.item()
         n_batches += 1
@@ -99,19 +129,42 @@ def evaluate(model, data_loader, criterion, device, model_type='gru'):
     
     with torch.no_grad():
         for batch in data_loader:
-            if model_type == 'dual_stream_lstm':
-                price_x, fund_x, y = batch
-                price_x = price_x.to(device)
-                fund_x = fund_x.to(device)
-                y = y.to(device)
-                outputs = model(price_x, fund_x)
+            if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
+                if model_type == 'vision_dual_stream_lstm':
+                    price_x, fund_x, vision_x, y = batch
+                    vision_x = vision_x.to(device, non_blocking=True)
+                else:
+                    price_x, fund_x, y = batch
+                    vision_x = None
+                price_x = price_x.to(device, non_blocking=True)
+                fund_x = fund_x.to(device, non_blocking=True)
+                y = y.to(device, non_blocking=True)
+                if device.type == 'cuda':
+                    with torch.amp.autocast('cuda'):
+                        if vision_x is not None:
+                            outputs = model(price_x, fund_x, vision_x)
+                        else:
+                            outputs = model(price_x, fund_x)
+                else:
+                    if vision_x is not None:
+                        outputs = model(price_x, fund_x, vision_x)
+                    else:
+                        outputs = model(price_x, fund_x)
             else:
                 x, y = batch
-                x = x.to(device)
-                y = y.to(device)
-                outputs = model(x)
+                x = x.to(device, non_blocking=True)
+                y = y.to(device, non_blocking=True)
+                if device.type == 'cuda':
+                    with torch.amp.autocast('cuda'):
+                        outputs = model(x)
+                else:
+                    outputs = model(x)
             
-            loss = criterion(outputs, y)
+            if device.type == 'cuda' and model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
+                with torch.amp.autocast('cuda'):
+                    loss = criterion(outputs, y)
+            else:
+                loss = criterion(outputs, y)
             total_loss += loss.item()
             
             all_preds.extend(outputs.cpu().numpy())
@@ -158,8 +211,18 @@ def train_model(config, df, feature_cols, target_col, save_dir):
     # Setup
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
+    if device.type == 'cuda':
+        torch.backends.cudnn.benchmark = True
+        torch.backends.cuda.matmul.allow_tf32 = True
     
     # Create dataloaders
+    # Check if vision model and set paths
+    outlook_index_path = None
+    data_dir = None
+    if config['model_type'] == 'vision_dual_stream_lstm':
+        outlook_index_path = '../processed_data/weather_outlooks/weather_outlook_index.csv'
+        data_dir = '../data/noaa_cpc_discussions/cpc_outlook_data'
+    
     train_loader, val_loader, test_loader = create_dataloaders(
         df, feature_cols, target_col,
         seq_len=config['seq_len'],
@@ -167,25 +230,40 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         batch_size=config['batch_size'],
         train_split=config['train_split'],
         val_split=config['val_split'],
-        model_type=config['model_type']
+        model_type=config['model_type'],
+        outlook_index_path=outlook_index_path,
+        data_dir=data_dir
     )
     
     # Determine input dimensions
-    if config['model_type'] == 'dual_stream_lstm':
+    if config['model_type'] in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
         groups = get_feature_groups(df)
         price_cols = [c for c in groups['price'] if c != target_col]
         price_dim = len(price_cols) + len(groups['volume'])
-        fund_dim = len(groups['wasde']) + len(groups['crop_progress']) + len(groups['weather']) + len(groups['time'])
+        fund_dim = len(groups['wasde']) + len(groups['crop_progress']) + len(groups['weather']) + len(groups['image']) + len(groups['time'])
         
-        model = create_model(
-            config['model_type'],
-            price_input_dim=price_dim,
-            fund_input_dim=fund_dim,
-            hidden_dim=config['hidden_dim'],
-            num_layers=config['num_layers'],
-            output_dim=1,
-            dropout=config['dropout']
-        )
+        if config['model_type'] == 'vision_dual_stream_lstm':
+            model = create_model(
+                config['model_type'],
+                price_input_dim=price_dim,
+                fund_input_dim=fund_dim,
+                vision_feature_dim=64,
+                hidden_dim=config['hidden_dim'],
+                num_layers=config['num_layers'],
+                output_dim=1,
+                dropout=config['dropout'],
+                num_images=6
+            )
+        else:
+            model = create_model(
+                config['model_type'],
+                price_input_dim=price_dim,
+                fund_input_dim=fund_dim,
+                hidden_dim=config['hidden_dim'],
+                num_layers=config['num_layers'],
+                output_dim=1,
+                dropout=config['dropout']
+            )
     else:
         input_dim = len(feature_cols)
         
@@ -210,6 +288,17 @@ def train_model(config, df, feature_cols, target_col, save_dir):
                 output_dim=1,
                 dropout=config['dropout']
             )
+        elif config['model_type'] == 'tft':
+            model = create_model(
+                config['model_type'],
+                input_dim=input_dim,
+                hidden_dim=config['hidden_dim'],
+                num_layers=config['num_layers'],
+                nhead=config.get('nhead', 4),
+                output_dim=1,
+                dropout=config['dropout'],
+                max_seq_len=config['seq_len']
+            )
         else:  # GRU
             model = create_model(
                 config['model_type'],
@@ -230,6 +319,7 @@ def train_model(config, df, feature_cols, target_col, save_dir):
     # Loss and optimizer
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=config['lr'], weight_decay=config.get('weight_decay', 0.0))
+    scaler = torch.amp.GradScaler('cuda') if device.type == 'cuda' else None
     
     # Learning rate scheduler
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(
@@ -256,8 +346,8 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         print(f"\nEpoch {epoch + 1}/{config['num_epochs']}")
         
         # Train
-        train_loss = train_epoch(model, train_loader, criterion, optimizer, 
-                                device, config['model_type'])
+        train_loss = train_epoch(model, train_loader, criterion, optimizer,
+                                device, config['model_type'], scaler=scaler)
         
         # Validate
         val_metrics = evaluate(model, val_loader, criterion, device, config['model_type'])
@@ -403,7 +493,7 @@ def main():
     """Main training script."""
     parser = argparse.ArgumentParser(description='Train crop futures prediction models')
     parser.add_argument('--model', type=str, default='all',
-                       choices=['all', 'dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'gru'],
+                       choices=['all', 'dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'tft', 'gru'],
                        help='Model to train')
     parser.add_argument('--seed', type=int, default=None,
                        help='Random seed for reproducibility')
@@ -490,7 +580,7 @@ def main():
     
     # Define models to train
     if args.model == 'all':
-        models_to_train = ['dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'gru']
+        models_to_train = ['dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'tft', 'gru']
     else:
         models_to_train = [args.model]
     
@@ -513,6 +603,8 @@ def main():
             config['d_model'] = 128
             config['nhead'] = 8
             config['dim_feedforward'] = 256
+        elif model_type == 'tft':
+            config['nhead'] = 4
         elif model_type == 'gru':
             config['bidirectional'] = False
         

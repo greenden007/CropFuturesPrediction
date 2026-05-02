@@ -1,0 +1,30 @@
+\begin{thebibliography}{4}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Liu et~al.(2022)Liu, Yang, Mohammadi, Song, Bi, and Wang]{liu2022machine}
+Qianfeng Liu, Meng Yang, Kiumars Mohammadi, Dandan Song, Jianfeng Bi, and Gengzhi Wang.
+\newblock Machine learning crop yield models based on meteorological features and comparison with a process-based model.
+\newblock \emph{Artificial Intelligence for the Earth Systems}, 1:\penalty0 1--34, 2022.
+\newblock \doi{10.1175/AIES-D-22-0002.1}.
+
+\bibitem[Schlenker \& Roberts(2009)Schlenker and Roberts]{schlenker2009nonlinear}
+Wolfram Schlenker and Michael~J. Roberts.
+\newblock Nonlinear temperature effects indicate severe damages to u.s. crop yields under climate change.
+\newblock \emph{Proceedings of the National Academy of Sciences}, 106\penalty0 (37):\penalty0 15594--15598, 2009.
+
+\bibitem[Singh(2022)]{singh2022estimating}
+Sanveer Singh.
+\newblock \emph{Estimating the Impact of Weather on {CBOT} Corn Futures Prices Using Machine Learning}.
+\newblock Doctoral dissertation, Iowa State University, 2022.
+
+\bibitem[Thaker et~al.(2024)Thaker, Chan, and Sonner]{thaker2024forecasting}
+Ankur Thaker, Leo~H. Chan, and Dara Sonner.
+\newblock Forecasting agriculture commodity futures prices with convolutional neural networks with application to wheat futures.
+\newblock \emph{Journal of Risk and Financial Management}, 17\penalty0 (4):\penalty0 143, 2024.
+\newblock \doi{10.3390/jrfm17040143}.
+
+\end{thebibliography}

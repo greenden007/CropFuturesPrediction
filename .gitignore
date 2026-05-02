@@ -14,6 +14,7 @@ venv/
 
 .claude/
 CLAUDE.md
+AGENTS.md
 
 # data
 data/*
@@ -23,3 +24,6 @@ training/wandb/*
 *.zip
 
 images/
+
+.DS_Store
+*/.DS_Store

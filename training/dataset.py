@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
+import os
 from pathlib import Path
 from typing import List, Tuple, Optional
 import warnings
@@ -232,6 +233,197 @@ class DualStreamDataset(Dataset):
         )
 
 
+class VisionDualStreamDataset(Dataset):
+    """
+    Dataset for Vision-Dual-Stream LSTM with price, fundamentals, and weather images.
+    
+    Extends DualStreamDataset by adding CPC weather outlook images (6-10 day and 8-14 day)
+    as a third input stream. Images are loaded and cached for efficiency.
+    
+    Args:
+        df: DataFrame with unified data
+        price_cols: Columns for price stream
+        fund_cols: Columns for fundamentals stream
+        target_col: Target column name
+        seq_len: Sequence length
+        pred_horizon: Prediction horizon
+        outlook_index_path: Path to outlook index CSV
+        data_dir: Root directory containing weather outlook images
+        num_images: Number of weather images per timestep (default: 6)
+        image_size: Size to resize images to (default: 64)
+    """
+    def __init__(self, df: pd.DataFrame, price_cols: List[str], 
+                 fund_cols: List[str], target_col: str, seq_len: int = 20,
+                 pred_horizon: int = 1, outlook_index_path: Optional[str] = None,
+                 data_dir: Optional[str] = None, num_images: int = 6,
+                 image_size: int = 64):
+        
+        self.seq_len = seq_len
+        self.pred_horizon = pred_horizon
+        self.num_images = num_images
+        self.image_size = image_size
+        
+        # Ensure sorted
+        df = df.sort_values('date').reset_index(drop=True)
+        self.dates = df['date'].values
+        
+        # Separate streams
+        self.price_cols = [c for c in price_cols if c in df.columns]
+        self.fund_cols = [c for c in fund_cols if c in df.columns]
+        
+        self.price_data = df[self.price_cols].values.astype(np.float32)
+        self.fund_data = df[self.fund_cols].values.astype(np.float32)
+        
+        if target_col in df.columns:
+            self.targets = df[target_col].values.astype(np.float32)
+        else:
+            raise ValueError(f"Target column {target_col} not found")
+        
+        # Initialize image processor if paths provided
+        self.image_processor = None
+        if outlook_index_path and data_dir:
+            try:
+                from image_encoder import MultiOutlookImageProcessor
+                self.image_processor = MultiOutlookImageProcessor(
+                    outlook_index_path=Path(outlook_index_path),
+                    data_dir=Path(data_dir),
+                    feature_dim=64,
+                    image_size=image_size
+                )
+                print(f"Loaded image processor with {len(self.image_processor.outlook_df)} outlook entries")
+            except ImportError:
+                print("Warning: PIL not available, vision features disabled")
+            except Exception as e:
+                print(f"Warning: Could not load image processor: {e}")
+        
+        # Normalize each stream
+        self._normalize()
+        
+        # Create sequences
+        self._create_sequences()
+        
+        # Preload vision features if processor available
+        self.vision_sequences = None
+        if self.image_processor is not None:
+            self._preload_vision_features()
+    
+    def _normalize(self):
+        """Normalize each stream separately."""
+        for i in range(self.price_data.shape[1]):
+            mean = np.nanmean(self.price_data[:, i])
+            std = np.nanstd(self.price_data[:, i])
+            if std > 0:
+                self.price_data[:, i] = (self.price_data[:, i] - mean) / (std + 1e-8)
+            self.price_data[:, i] = np.nan_to_num(self.price_data[:, i], nan=0.0)
+        
+        for i in range(self.fund_data.shape[1]):
+            mean = np.nanmean(self.fund_data[:, i])
+            std = np.nanstd(self.fund_data[:, i])
+            if std > 0:
+                self.fund_data[:, i] = (self.fund_data[:, i] - mean) / (std + 1e-8)
+            self.fund_data[:, i] = np.nan_to_num(self.fund_data[:, i], nan=0.0)
+        
+        self.target_mean = np.nanmean(self.targets)
+        self.target_std = np.nanstd(self.targets)
+        if self.target_std > 0:
+            self.targets = (self.targets - self.target_mean) / (self.target_std + 1e-8)
+    
+    def _create_sequences(self):
+        """Create sequences for both streams."""
+        self.price_sequences = []
+        self.fund_sequences = []
+        self.sequence_targets = []
+        self.sequence_dates = []  # Track dates for vision lookup
+        
+        max_idx = len(self.price_data) - self.seq_len - self.pred_horizon + 1
+        
+        for i in range(max_idx):
+            price_seq = self.price_data[i:i + self.seq_len]
+            fund_seq = self.fund_data[i:i + self.seq_len]
+            
+            target_idx = i + self.seq_len + self.pred_horizon - 1
+            target = self.targets[target_idx]
+            
+            if (not np.isnan(price_seq).any() and 
+                not np.isnan(fund_seq).any() and 
+                not np.isnan(target)):
+                
+                self.price_sequences.append(price_seq)
+                self.fund_sequences.append(fund_seq)
+                self.sequence_targets.append(target)
+                # Store dates for this sequence
+                self.sequence_dates.append(self.dates[i:i + self.seq_len])
+    
+    def _preload_vision_features(self):
+        """Preload vision features for all sequences."""
+        import torch
+        
+        print("Preloading vision features...")
+        self.vision_sequences = []
+        
+        for seq_dates in self.sequence_dates:
+            seq_images = []
+            for date in seq_dates:
+                date_str = pd.to_datetime(date).strftime('%Y-%m-%d')
+                images = self._get_images_for_date(date_str)
+                seq_images.append(images)
+            
+            # Stack images: (seq_len, num_images, 1, H, W)
+            vision_tensor = torch.stack(seq_images)  # Each element is (num_images, 1, H, W)
+            self.vision_sequences.append(vision_tensor)
+        
+        print(f"Preloaded {len(self.vision_sequences)} vision sequences")
+    
+    def _get_images_for_date(self, date_str: str) -> torch.Tensor:
+        """Get images for a specific date, returning placeholder if not available."""
+        import torch
+        
+        if self.image_processor is None:
+            # Return placeholder zeros
+            return torch.zeros(self.num_images, 1, self.image_size, self.image_size)
+        
+        try:
+            images_dict = self.image_processor.get_images_for_date(date_str)
+            all_images = []
+            
+            # Collect images from both forecast types (6-10 day and 8-14 day)
+            for forecast_type in ['6-10_day', '8-14_day']:
+                for img in images_dict.get(forecast_type, []):
+                    if len(all_images) < self.num_images:
+                        all_images.append(torch.from_numpy(img).unsqueeze(0))  # Add channel dim
+            
+            # Pad with zeros if we don't have enough images
+            while len(all_images) < self.num_images:
+                all_images.append(torch.zeros(1, self.image_size, self.image_size))
+            
+            # Truncate if too many
+            all_images = all_images[:self.num_images]
+            
+            return torch.stack(all_images)  # (num_images, 1, H, W)
+            
+        except Exception as e:
+            # Return placeholder on error
+            return torch.zeros(self.num_images, 1, self.image_size, self.image_size)
+    
+    def __len__(self):
+        return len(self.price_sequences)
+    
+    def __getitem__(self, idx):
+        if self.vision_sequences is not None:
+            vision = self.vision_sequences[idx]
+        else:
+            # Lazy load if not preloaded
+            import torch
+            vision = torch.zeros(self.seq_len, self.num_images, 1, self.image_size, self.image_size)
+        
+        return (
+            torch.FloatTensor(self.price_sequences[idx]),
+            torch.FloatTensor(self.fund_sequences[idx]),
+            vision,
+            torch.FloatTensor([self.sequence_targets[idx]])
+        )
+
+
 def load_unified_data(data_path: str = 'merged_data/daily_unified.csv',
                       freq: str = 'daily') -> pd.DataFrame:
     """
@@ -302,7 +494,9 @@ def create_dataloaders(df: pd.DataFrame,
                        batch_size: int = 32,
                        train_split: float = 0.8,
                        val_split: float = 0.1,
-                       model_type: str = 'gru') -> Tuple[DataLoader, DataLoader, DataLoader]:
+                       model_type: str = 'gru',
+                       outlook_index_path: Optional[str] = None,
+                       data_dir: Optional[str] = None) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Create train/val/test dataloaders with temporal split.
     
@@ -315,7 +509,9 @@ def create_dataloaders(df: pd.DataFrame,
         batch_size: Batch size
         train_split: Fraction for training
         val_split: Fraction for validation (remainder goes to test)
-        model_type: 'dual_stream_lstm' or others (determines dataset type)
+        model_type: 'dual_stream_lstm', 'vision_dual_stream_lstm', or others
+        outlook_index_path: Path to outlook index CSV (for vision models)
+        data_dir: Root directory containing weather outlook images (for vision models)
     
     Returns:
         Tuple of (train_loader, val_loader, test_loader)
@@ -336,7 +532,7 @@ def create_dataloaders(df: pd.DataFrame,
         # Separate price and fundamental features
         groups = get_feature_groups(df)
         price_cols = [c for c in groups['price'] if c != target_col] + groups['volume']
-        fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['time']
+        fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['image'] + groups['time']
         
         train_dataset = DualStreamDataset(train_df, price_cols, fund_cols, 
                                          target_col, seq_len, pred_horizon)
@@ -344,6 +540,23 @@ def create_dataloaders(df: pd.DataFrame,
                                        target_col, seq_len, pred_horizon)
         test_dataset = DualStreamDataset(test_df, price_cols, fund_cols,
                                         target_col, seq_len, pred_horizon)
+    
+    elif model_type == 'vision_dual_stream_lstm':
+        # Vision-enhanced dual stream with weather images
+        groups = get_feature_groups(df)
+        price_cols = [c for c in groups['price'] if c != target_col] + groups['volume']
+        fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['image'] + groups['time']
+        
+        train_dataset = VisionDualStreamDataset(train_df, price_cols, fund_cols,
+                                                target_col, seq_len, pred_horizon,
+                                                outlook_index_path, data_dir)
+        val_dataset = VisionDualStreamDataset(val_df, price_cols, fund_cols,
+                                              target_col, seq_len, pred_horizon,
+                                              outlook_index_path, data_dir)
+        test_dataset = VisionDualStreamDataset(test_df, price_cols, fund_cols,
+                                               target_col, seq_len, pred_horizon,
+                                               outlook_index_path, data_dir)
+    
     else:
         # Single stream dataset
         train_dataset = FuturesDataset(train_df, feature_cols, target_col,
@@ -353,13 +566,27 @@ def create_dataloaders(df: pd.DataFrame,
         test_dataset = FuturesDataset(test_df, feature_cols, target_col,
                                      seq_len, pred_horizon)
     
-    # Create dataloaders
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, 
-                             shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size,
-                           shuffle=False, num_workers=0)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size,
-                            shuffle=False, num_workers=0)
+    # GPU-friendly DataLoader settings
+    use_cuda = torch.cuda.is_available()
+    num_workers = min(4, os.cpu_count() or 1)
+    pin_memory = use_cuda
+    persistent_workers = num_workers > 0
+
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True,
+        num_workers=num_workers, pin_memory=pin_memory,
+        persistent_workers=persistent_workers
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=False,
+        num_workers=num_workers, pin_memory=pin_memory,
+        persistent_workers=persistent_workers
+    )
+    test_loader = DataLoader(
+        test_dataset, batch_size=batch_size, shuffle=False,
+        num_workers=num_workers, pin_memory=pin_memory,
+        persistent_workers=persistent_workers
+    )
     
     return train_loader, val_loader, test_loader
 

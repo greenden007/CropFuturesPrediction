@@ -53,6 +53,12 @@ DEFAULT_MODEL_CONFIGS = {
         'lr': 0.0001,
         'hidden_dim': 256,
     },
+    'tft': {
+        'epochs': 200,
+        'batch_size': 32,
+        'lr': 0.0003,
+        'hidden_dim': 128,
+    },
     'dual_stream_lstm': {
         'epochs': 120,
         'batch_size': 32,
@@ -184,8 +190,8 @@ def main():
     
     # Models to train
     parser.add_argument('--models', nargs='+', 
-                       default=['gru', 'resnet', 'transformer', 'dual_stream_lstm'],
-                       choices=['gru', 'resnet', 'transformer', 'dual_stream_lstm'],
+                       default=['gru', 'resnet', 'transformer', 'tft', 'dual_stream_lstm'],
+                       choices=['gru', 'resnet', 'transformer', 'tft', 'dual_stream_lstm'],
                        help='Model architectures to train')
     
     # Prediction horizons

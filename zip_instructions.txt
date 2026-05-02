@@ -1,0 +1,6 @@
+archive.zip
+.claude/
+CLAUDE.md
+AGENTS.md
+.venv/
+ProgressReportWriteup.pdf
