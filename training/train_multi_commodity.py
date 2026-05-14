@@ -382,7 +382,7 @@ def main():
                        help='Model architecture')
     parser.add_argument('--horizon', type=int, default=1,
                        help='Prediction horizon (days)')
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv',
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv',
                        help='Path to unified data')
     parser.add_argument('--epochs', type=int, default=100,
                        help='Number of epochs')

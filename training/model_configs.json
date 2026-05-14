@@ -20,6 +20,20 @@
     "hidden_dim": 256,
     "description": "Transformer needs large hidden dim, low LR, more epochs"
   },
+  "patchtst": {
+    "epochs": 200,
+    "batch_size": 32,
+    "lr": 0.0002,
+    "hidden_dim": 128,
+    "description": "PatchTST with moderate embedding size and conservative LR"
+  },
+  "nbeats": {
+    "epochs": 200,
+    "batch_size": 64,
+    "lr": 0.0005,
+    "hidden_dim": 256,
+    "description": "N-BEATS MLP stack benefits from larger hidden width"
+  },
   "dual_stream_lstm": {
     "epochs": 120,
     "batch_size": 32,

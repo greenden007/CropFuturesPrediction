@@ -34,12 +34,12 @@ def run_training_with_seed(
     seed: int,
     epochs: int = 100,
     output_dir: str = 'results_multi_seed',
-    data_path: str = '../merged_data/daily_unified.csv'
+    data_path: str = 'merged_data/daily_unified.csv'
 ) -> Dict:
     """Run training with a specific random seed."""
     
     cmd = [
-        'python', 'train.py',
+        'python', 'training/train.py',
         '--model', model,
         '--commodity', commodity,
         '--horizon', str(horizon),
@@ -57,7 +57,6 @@ def run_training_with_seed(
         cmd, 
         capture_output=True, 
         text=True, 
-        cwd=Path(__file__).parent,
         env=env
     )
     

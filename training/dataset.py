@@ -30,9 +30,10 @@ class FuturesDataset(Dataset):
         normalize: Whether to normalize features
         price_cols: Columns that are prices (normalized separately)
     """
-    def __init__(self, df: pd.DataFrame, feature_cols: List[str], 
+    def __init__(self, df: pd.DataFrame, feature_cols: List[str],
                  target_col: str, seq_len: int = 20, pred_horizon: int = 1,
-                 normalize: bool = True, price_cols: Optional[List[str]] = None):
+                 normalize: bool = True, price_cols: Optional[List[str]] = None,
+                 normalization_stats: Optional[dict] = None):
         
         self.seq_len = seq_len
         self.pred_horizon = pred_horizon
@@ -60,43 +61,62 @@ class FuturesDataset(Dataset):
         
         # Normalization
         if normalize:
-            self._normalize()
+            self._normalize(normalization_stats)
         
         # Create sequences
         self._create_sequences()
     
-    def _normalize(self):
+    def _normalize(self, normalization_stats: Optional[dict] = None):
         """Z-score normalization with price-specific handling."""
         # For price columns: normalize by recent history
         price_indices = [self.feature_cols.index(c) for c in self.price_cols 
                         if c in self.feature_cols]
-        
+
+        if normalization_stats is None:
+            feature_means = []
+            feature_stds = []
+            for i in range(self.data.shape[1]):
+                col_data = self.data[:, i]
+
+                if i in price_indices:
+                    mean = np.nanmean(col_data)
+                    std = np.nanstd(col_data)
+                else:
+                    mean = np.nanmean(col_data)
+                    std = np.nanstd(col_data)
+
+                feature_means.append(float(mean))
+                feature_stds.append(float(std))
+            self.target_mean = float(np.nanmean(self.targets))
+            self.target_std = float(np.nanstd(self.targets))
+            self.normalization_stats = {
+                'feature_means': feature_means,
+                'feature_stds': feature_stds,
+                'target_mean': self.target_mean,
+                'target_std': self.target_std
+            }
+        else:
+            self.normalization_stats = normalization_stats
+            feature_means = normalization_stats['feature_means']
+            feature_stds = normalization_stats['feature_stds']
+            self.target_mean = float(normalization_stats['target_mean'])
+            self.target_std = float(normalization_stats['target_std'])
+
         for i in range(self.data.shape[1]):
             col_data = self.data[:, i]
-            
-            if i in price_indices:
-                # For prices: use rolling window normalization
-                # But we need to do this carefully to avoid look-ahead bias
-                # For now, use global mean/std for simplicity
-                # In production, use expanding window normalization
-                mean = np.nanmean(col_data)
-                std = np.nanstd(col_data)
-            else:
-                # For other features: global normalization
-                mean = np.nanmean(col_data)
-                std = np.nanstd(col_data)
-            
+            mean = feature_means[i]
+            std = feature_stds[i]
+
             if std > 0:
                 self.data[:, i] = (col_data - mean) / (std + 1e-8)
-            
-            # Fill any remaining NaNs with 0
+
             self.data[:, i] = np.nan_to_num(self.data[:, i], nan=0.0)
-        
-        # Also normalize target
-        self.target_mean = np.nanmean(self.targets)
-        self.target_std = np.nanstd(self.targets)
+
         if self.target_std > 0:
             self.targets = (self.targets - self.target_mean) / (self.target_std + 1e-8)
+
+    def get_normalization_stats(self) -> Optional[dict]:
+        return getattr(self, 'normalization_stats', None)
     
     def _create_sequences(self):
         """Create input sequences and targets."""
@@ -146,9 +166,9 @@ class DualStreamDataset(Dataset):
         seq_len: Sequence length
         pred_horizon: Prediction horizon
     """
-    def __init__(self, df: pd.DataFrame, price_cols: List[str], 
+    def __init__(self, df: pd.DataFrame, price_cols: List[str],
                  fund_cols: List[str], target_col: str, seq_len: int = 20,
-                 pred_horizon: int = 1):
+                 pred_horizon: int = 1, normalization_stats: Optional[dict] = None):
         
         self.seq_len = seq_len
         self.pred_horizon = pred_horizon
@@ -170,34 +190,56 @@ class DualStreamDataset(Dataset):
             raise ValueError(f"Target column {target_col} not found")
         
         # Normalize each stream
-        self._normalize()
+        self._normalize(normalization_stats)
         
         # Create sequences
         self._create_sequences()
     
-    def _normalize(self):
+    def _normalize(self, normalization_stats: Optional[dict] = None):
         """Normalize each stream separately."""
-        # Price stream normalization
+        if normalization_stats is None:
+            price_means = [float(np.nanmean(self.price_data[:, i])) for i in range(self.price_data.shape[1])]
+            price_stds = [float(np.nanstd(self.price_data[:, i])) for i in range(self.price_data.shape[1])]
+            fund_means = [float(np.nanmean(self.fund_data[:, i])) for i in range(self.fund_data.shape[1])]
+            fund_stds = [float(np.nanstd(self.fund_data[:, i])) for i in range(self.fund_data.shape[1])]
+            self.target_mean = float(np.nanmean(self.targets))
+            self.target_std = float(np.nanstd(self.targets))
+            self.normalization_stats = {
+                'price_means': price_means,
+                'price_stds': price_stds,
+                'fund_means': fund_means,
+                'fund_stds': fund_stds,
+                'target_mean': self.target_mean,
+                'target_std': self.target_std
+            }
+        else:
+            self.normalization_stats = normalization_stats
+            price_means = normalization_stats['price_means']
+            price_stds = normalization_stats['price_stds']
+            fund_means = normalization_stats['fund_means']
+            fund_stds = normalization_stats['fund_stds']
+            self.target_mean = float(normalization_stats['target_mean'])
+            self.target_std = float(normalization_stats['target_std'])
+
         for i in range(self.price_data.shape[1]):
-            mean = np.nanmean(self.price_data[:, i])
-            std = np.nanstd(self.price_data[:, i])
+            mean = price_means[i]
+            std = price_stds[i]
             if std > 0:
                 self.price_data[:, i] = (self.price_data[:, i] - mean) / (std + 1e-8)
             self.price_data[:, i] = np.nan_to_num(self.price_data[:, i], nan=0.0)
-        
-        # Fundamentals stream normalization
+
         for i in range(self.fund_data.shape[1]):
-            mean = np.nanmean(self.fund_data[:, i])
-            std = np.nanstd(self.fund_data[:, i])
+            mean = fund_means[i]
+            std = fund_stds[i]
             if std > 0:
                 self.fund_data[:, i] = (self.fund_data[:, i] - mean) / (std + 1e-8)
             self.fund_data[:, i] = np.nan_to_num(self.fund_data[:, i], nan=0.0)
-        
-        # Target normalization
-        self.target_mean = np.nanmean(self.targets)
-        self.target_std = np.nanstd(self.targets)
+
         if self.target_std > 0:
             self.targets = (self.targets - self.target_mean) / (self.target_std + 1e-8)
+
+    def get_normalization_stats(self) -> Optional[dict]:
+        return getattr(self, 'normalization_stats', None)
     
     def _create_sequences(self):
         """Create sequences for both streams."""
@@ -252,11 +294,11 @@ class VisionDualStreamDataset(Dataset):
         num_images: Number of weather images per timestep (default: 6)
         image_size: Size to resize images to (default: 64)
     """
-    def __init__(self, df: pd.DataFrame, price_cols: List[str], 
+    def __init__(self, df: pd.DataFrame, price_cols: List[str],
                  fund_cols: List[str], target_col: str, seq_len: int = 20,
                  pred_horizon: int = 1, outlook_index_path: Optional[str] = None,
                  data_dir: Optional[str] = None, num_images: int = 6,
-                 image_size: int = 64):
+                 image_size: int = 64, normalization_stats: Optional[dict] = None):
         
         self.seq_len = seq_len
         self.pred_horizon = pred_horizon
@@ -297,7 +339,7 @@ class VisionDualStreamDataset(Dataset):
                 print(f"Warning: Could not load image processor: {e}")
         
         # Normalize each stream
-        self._normalize()
+        self._normalize(normalization_stats)
         
         # Create sequences
         self._create_sequences()
@@ -307,26 +349,51 @@ class VisionDualStreamDataset(Dataset):
         if self.image_processor is not None:
             self._preload_vision_features()
     
-    def _normalize(self):
+    def _normalize(self, normalization_stats: Optional[dict] = None):
         """Normalize each stream separately."""
+        if normalization_stats is None:
+            price_means = [float(np.nanmean(self.price_data[:, i])) for i in range(self.price_data.shape[1])]
+            price_stds = [float(np.nanstd(self.price_data[:, i])) for i in range(self.price_data.shape[1])]
+            fund_means = [float(np.nanmean(self.fund_data[:, i])) for i in range(self.fund_data.shape[1])]
+            fund_stds = [float(np.nanstd(self.fund_data[:, i])) for i in range(self.fund_data.shape[1])]
+            self.target_mean = float(np.nanmean(self.targets))
+            self.target_std = float(np.nanstd(self.targets))
+            self.normalization_stats = {
+                'price_means': price_means,
+                'price_stds': price_stds,
+                'fund_means': fund_means,
+                'fund_stds': fund_stds,
+                'target_mean': self.target_mean,
+                'target_std': self.target_std
+            }
+        else:
+            self.normalization_stats = normalization_stats
+            price_means = normalization_stats['price_means']
+            price_stds = normalization_stats['price_stds']
+            fund_means = normalization_stats['fund_means']
+            fund_stds = normalization_stats['fund_stds']
+            self.target_mean = float(normalization_stats['target_mean'])
+            self.target_std = float(normalization_stats['target_std'])
+
         for i in range(self.price_data.shape[1]):
-            mean = np.nanmean(self.price_data[:, i])
-            std = np.nanstd(self.price_data[:, i])
+            mean = price_means[i]
+            std = price_stds[i]
             if std > 0:
                 self.price_data[:, i] = (self.price_data[:, i] - mean) / (std + 1e-8)
             self.price_data[:, i] = np.nan_to_num(self.price_data[:, i], nan=0.0)
-        
+
         for i in range(self.fund_data.shape[1]):
-            mean = np.nanmean(self.fund_data[:, i])
-            std = np.nanstd(self.fund_data[:, i])
+            mean = fund_means[i]
+            std = fund_stds[i]
             if std > 0:
                 self.fund_data[:, i] = (self.fund_data[:, i] - mean) / (std + 1e-8)
             self.fund_data[:, i] = np.nan_to_num(self.fund_data[:, i], nan=0.0)
-        
-        self.target_mean = np.nanmean(self.targets)
-        self.target_std = np.nanstd(self.targets)
+
         if self.target_std > 0:
             self.targets = (self.targets - self.target_mean) / (self.target_std + 1e-8)
+
+    def get_normalization_stats(self) -> Optional[dict]:
+        return getattr(self, 'normalization_stats', None)
     
     def _create_sequences(self):
         """Create sequences for both streams."""
@@ -409,11 +476,12 @@ class VisionDualStreamDataset(Dataset):
         return len(self.price_sequences)
     
     def __getitem__(self, idx):
+        import torch  # Import at start of method
+        
         if self.vision_sequences is not None:
             vision = self.vision_sequences[idx]
         else:
             # Lazy load if not preloaded
-            import torch
             vision = torch.zeros(self.seq_len, self.num_images, 1, self.image_size, self.image_size)
         
         return (
@@ -516,6 +584,9 @@ def create_dataloaders(df: pd.DataFrame,
     Returns:
         Tuple of (train_loader, val_loader, test_loader)
     """
+    # Align split population with baseline scripts and avoid NaN-target windows.
+    df = df.sort_values('date').dropna(subset=[target_col]).reset_index(drop=True)
+
     # Temporal split (important for time series!)
     n = len(df)
     train_end = int(n * train_split)
@@ -534,14 +605,17 @@ def create_dataloaders(df: pd.DataFrame,
         price_cols = [c for c in groups['price'] if c != target_col] + groups['volume']
         fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['image'] + groups['time']
         
-        train_dataset = DualStreamDataset(train_df, price_cols, fund_cols, 
+        train_dataset = DualStreamDataset(train_df, price_cols, fund_cols,
                                          target_col, seq_len, pred_horizon)
+        norm_stats = train_dataset.get_normalization_stats()
         val_dataset = DualStreamDataset(val_df, price_cols, fund_cols,
-                                       target_col, seq_len, pred_horizon)
+                                       target_col, seq_len, pred_horizon,
+                                       normalization_stats=norm_stats)
         test_dataset = DualStreamDataset(test_df, price_cols, fund_cols,
-                                        target_col, seq_len, pred_horizon)
+                                        target_col, seq_len, pred_horizon,
+                                        normalization_stats=norm_stats)
     
-    elif model_type == 'vision_dual_stream_lstm':
+    elif model_type in ['vision_dual_stream_lstm', 'attention_vision_dual_stream']:
         # Vision-enhanced dual stream with weather images
         groups = get_feature_groups(df)
         price_cols = [c for c in groups['price'] if c != target_col] + groups['volume']
@@ -550,21 +624,27 @@ def create_dataloaders(df: pd.DataFrame,
         train_dataset = VisionDualStreamDataset(train_df, price_cols, fund_cols,
                                                 target_col, seq_len, pred_horizon,
                                                 outlook_index_path, data_dir)
+        norm_stats = train_dataset.get_normalization_stats()
         val_dataset = VisionDualStreamDataset(val_df, price_cols, fund_cols,
                                               target_col, seq_len, pred_horizon,
-                                              outlook_index_path, data_dir)
+                                              outlook_index_path, data_dir,
+                                              normalization_stats=norm_stats)
         test_dataset = VisionDualStreamDataset(test_df, price_cols, fund_cols,
                                                target_col, seq_len, pred_horizon,
-                                               outlook_index_path, data_dir)
+                                               outlook_index_path, data_dir,
+                                               normalization_stats=norm_stats)
     
     else:
         # Single stream dataset
         train_dataset = FuturesDataset(train_df, feature_cols, target_col,
                                       seq_len, pred_horizon)
+        norm_stats = train_dataset.get_normalization_stats()
         val_dataset = FuturesDataset(val_df, feature_cols, target_col,
-                                    seq_len, pred_horizon)
+                                    seq_len, pred_horizon,
+                                    normalization_stats=norm_stats)
         test_dataset = FuturesDataset(test_df, feature_cols, target_col,
-                                     seq_len, pred_horizon)
+                                     seq_len, pred_horizon,
+                                     normalization_stats=norm_stats)
     
     # GPU-friendly DataLoader settings
     use_cuda = torch.cuda.is_available()
@@ -596,7 +676,7 @@ if __name__ == "__main__":
     print("Testing dataset loading...")
     
     # Load data
-    df = load_unified_data('../merged_data/daily_unified.csv')
+    df = load_unified_data('merged_data/daily_unified.csv')
     
     # Get feature groups
     groups = get_feature_groups(df)

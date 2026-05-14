@@ -166,7 +166,7 @@ def linear_baseline(
     feature_cols = [c for c in df.columns if c not in exclude_cols]
     
     # Handle NaN features
-    X = df[feature_cols].fillna(method='ffill').fillna(0).values
+    X = df[feature_cols].ffill().fillna(0).values
     y = df[target_col].values
     
     # Split
@@ -255,7 +255,8 @@ def run_all_baselines(
     horizon: int,
     output_dir: str = 'results_baselines',
     train_split: float = 0.7,
-    val_split: float = 0.15
+    val_split: float = 0.15,
+    normalize_target: bool = False
 ) -> Dict:
     """
     Run all classical baselines for comparison.
@@ -274,9 +275,12 @@ def run_all_baselines(
     if target_col not in df.columns:
         raise ValueError(f"Target column {target_col} not found")
     
-    # Get series
+    # Sort by time and remove rows with missing target values.
+    # Corn has occasional missing closes in the unified file, which breaks
+    # baseline metric computation if we don't filter them first.
     df = df.sort_values('date').reset_index(drop=True)
-    series = df[target_col].values
+    df = df.dropna(subset=[target_col]).reset_index(drop=True)
+    series = df[target_col].values.astype(np.float64)
     
     # Create masks for split
     n = len(df)
@@ -295,6 +299,19 @@ def run_all_baselines(
     train_series = series[train_mask]
     val_series = series[val_mask]
     test_series = series[test_mask]
+
+    # Optional target normalization for fairer comparison with neural models
+    # that report metrics in normalized target space.
+    if normalize_target:
+        target_mean = np.nanmean(train_series)
+        target_std = np.nanstd(train_series)
+        if target_std <= 0 or np.isnan(target_std):
+            target_std = 1.0
+        train_series = (train_series - target_mean) / (target_std + 1e-8)
+        val_series = (val_series - target_mean) / (target_std + 1e-8)
+        test_series = (test_series - target_mean) / (target_std + 1e-8)
+        df[target_col] = (df[target_col].values - target_mean) / (target_std + 1e-8)
+        print(f"Target normalized using train stats: mean={target_mean:.6f}, std={target_std:.6f}")
     
     print(f"Data shape: {series.shape}")
     print(f"Train: {len(train_series)}, Val: {len(val_series)}, Test: {len(test_series)}")
@@ -372,8 +389,10 @@ if __name__ == "__main__":
     parser.add_argument('--commodity', type=str, default='corn',
                        choices=['corn', 'soybeans', 'wheat'])
     parser.add_argument('--horizon', type=int, default=1)
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv')
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv')
     parser.add_argument('--output_dir', type=str, default='results_baselines')
+    parser.add_argument('--normalize_target', action='store_true',
+                       help='Evaluate baselines in normalized target space (z-score using train split stats).')
     
     args = parser.parse_args()
     
@@ -381,5 +400,6 @@ if __name__ == "__main__":
         data_path=args.data,
         commodity=args.commodity,
         horizon=args.horizon,
-        output_dir=args.output_dir
+        output_dir=args.output_dir,
+        normalize_target=args.normalize_target
     )

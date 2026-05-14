@@ -1,0 +1,29 @@
+{
+  "random_walk": {
+    "model": "random_walk",
+    "train_mse": 85.27796651723172,
+    "val_mse": 137.33104575163398,
+    "test_mse": 61.81078655352481,
+    "train_mae": 6.104861305687868,
+    "val_mae": 7.52875816993464,
+    "test_mae": 5.163511749347259,
+    "train_dir_acc": 0.4781390134529148,
+    "val_dir_acc": 0.4698952879581152,
+    "test_dir_acc": 0.4718954248366013,
+    "n_parameters": 0
+  },
+  "ridge": {
+    "model": "ridge_regression",
+    "train_mse": 9.955543873562755,
+    "val_mse": 175080.02979804223,
+    "test_mse": 20.386289928156646,
+    "train_mae": 2.254637853796042,
+    "val_mae": 157.18220402361035,
+    "test_mae": 3.7068689338690666,
+    "train_dir_acc": 0.8041468198374895,
+    "val_dir_acc": 0.7787958115183246,
+    "test_dir_acc": 0.8235294117647058,
+    "n_parameters": 171,
+    "feature_count": 170
+  }
+}

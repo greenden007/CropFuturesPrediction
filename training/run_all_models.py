@@ -59,6 +59,18 @@ DEFAULT_MODEL_CONFIGS = {
         'lr': 0.0003,
         'hidden_dim': 128,
     },
+    'patchtst': {
+        'epochs': 200,
+        'batch_size': 32,
+        'lr': 0.0002,
+        'hidden_dim': 128,
+    },
+    'nbeats': {
+        'epochs': 200,
+        'batch_size': 64,
+        'lr': 0.0005,
+        'hidden_dim': 256,
+    },
     'dual_stream_lstm': {
         'epochs': 120,
         'batch_size': 32,
@@ -82,7 +94,7 @@ def run_training(commodity, model, horizon, epochs, batch_size, lr, hidden_dim,
     
     # Build command
     cmd = [
-        'python', 'train.py',
+        'python', 'training/train.py',
         '--model', model,
         '--commodity', commodity,
         '--horizon', str(horizon),
@@ -96,7 +108,7 @@ def run_training(commodity, model, horizon, epochs, batch_size, lr, hidden_dim,
     
     # Run training
     start_time = datetime.now()
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=Path(__file__).parent)
+    result = subprocess.run(cmd, capture_output=True, text=True)
     end_time = datetime.now()
     duration = (end_time - start_time).total_seconds()
 
@@ -133,6 +145,8 @@ def run_training(commodity, model, horizon, epochs, batch_size, lr, hidden_dim,
             if 'config' in saved_results:
                 config = saved_results['config']
                 metrics['n_parameters'] = config.get('n_parameters', 0)
+            if 'n_parameters' in saved_results:
+                metrics['n_parameters'] = saved_results.get('n_parameters', metrics.get('n_parameters', 0))
         except json.JSONDecodeError as e:
             metrics['error'] = f'Corrupted results file: {e}'
     else:
@@ -190,8 +204,8 @@ def main():
     
     # Models to train
     parser.add_argument('--models', nargs='+', 
-                       default=['gru', 'resnet', 'transformer', 'tft', 'dual_stream_lstm'],
-                       choices=['gru', 'resnet', 'transformer', 'tft', 'dual_stream_lstm'],
+                       default=['gru', 'resnet', 'transformer', 'patchtst', 'nbeats', 'tft', 'dual_stream_lstm'],
+                       choices=['gru', 'resnet', 'transformer', 'patchtst', 'nbeats', 'tft', 'dual_stream_lstm'],
                        help='Model architectures to train')
     
     # Prediction horizons
@@ -208,9 +222,9 @@ def main():
     parser.add_argument('--hidden_dim', type=int, default=64,
                        help='Hidden dimension')
     
-    # Data and output (paths relative to training/ directory where train.py runs)
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv',
-                       help='Path to unified data (relative to training/ dir)')
+    # Data and output (paths resolved from repository root)
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv',
+                       help='Path to unified data (from repository root)')
     parser.add_argument('--output_dir', type=str, default='results_all_models',
                        help='Output directory')
     

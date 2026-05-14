@@ -62,8 +62,8 @@ def train_epoch(model, train_loader, criterion, optimizer, device, model_type='g
     n_batches = 0
     
     for batch in tqdm(train_loader, desc='Training'):
-        if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
-            if model_type == 'vision_dual_stream_lstm':
+        if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm', 'attention_vision_dual_stream']:
+            if model_type in ['vision_dual_stream_lstm', 'attention_vision_dual_stream']:
                 price_x, fund_x, vision_x, y = batch
                 vision_x = vision_x.to(device, non_blocking=True)
             else:
@@ -129,8 +129,8 @@ def evaluate(model, data_loader, criterion, device, model_type='gru'):
     
     with torch.no_grad():
         for batch in data_loader:
-            if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
-                if model_type == 'vision_dual_stream_lstm':
+            if model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm', 'attention_vision_dual_stream']:
+                if model_type in ['vision_dual_stream_lstm', 'attention_vision_dual_stream']:
                     price_x, fund_x, vision_x, y = batch
                     vision_x = vision_x.to(device, non_blocking=True)
                 else:
@@ -160,7 +160,7 @@ def evaluate(model, data_loader, criterion, device, model_type='gru'):
                 else:
                     outputs = model(x)
             
-            if device.type == 'cuda' and model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
+            if device.type == 'cuda' and model_type in ['dual_stream_lstm', 'vision_dual_stream_lstm', 'attention_vision_dual_stream']:
                 with torch.amp.autocast('cuda'):
                     loss = criterion(outputs, y)
             else:
@@ -219,9 +219,9 @@ def train_model(config, df, feature_cols, target_col, save_dir):
     # Check if vision model and set paths
     outlook_index_path = None
     data_dir = None
-    if config['model_type'] == 'vision_dual_stream_lstm':
-        outlook_index_path = '../processed_data/weather_outlooks/weather_outlook_index.csv'
-        data_dir = '../data/noaa_cpc_discussions/cpc_outlook_data'
+    if config['model_type'] in ['vision_dual_stream_lstm', 'attention_vision_dual_stream']:
+        outlook_index_path = 'processed_data/weather_outlooks/weather_outlook_index.csv'
+        data_dir = 'data/noaa_cpc_discussions/cpc_outlook_data'
     
     train_loader, val_loader, test_loader = create_dataloaders(
         df, feature_cols, target_col,
@@ -234,9 +234,12 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         outlook_index_path=outlook_index_path,
         data_dir=data_dir
     )
+    normalization_stats = None
+    if hasattr(train_loader, 'dataset') and hasattr(train_loader.dataset, 'get_normalization_stats'):
+        normalization_stats = train_loader.dataset.get_normalization_stats()
     
     # Determine input dimensions
-    if config['model_type'] in ['dual_stream_lstm', 'vision_dual_stream_lstm']:
+    if config['model_type'] in ['dual_stream_lstm', 'vision_dual_stream_lstm', 'attention_vision_dual_stream']:
         groups = get_feature_groups(df)
         price_cols = [c for c in groups['price'] if c != target_col]
         price_dim = len(price_cols) + len(groups['volume'])
@@ -245,6 +248,18 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         if config['model_type'] == 'vision_dual_stream_lstm':
             model = create_model(
                 config['model_type'],
+                price_input_dim=price_dim,
+                fund_input_dim=fund_dim,
+                vision_feature_dim=64,
+                hidden_dim=config['hidden_dim'],
+                num_layers=config['num_layers'],
+                output_dim=1,
+                dropout=config['dropout'],
+                num_images=6
+            )
+        elif config['model_type'] == 'attention_vision_dual_stream':
+            from attention_vision_model import AttentionVisionDualStreamLSTM
+            model = AttentionVisionDualStreamLSTM(
                 price_input_dim=price_dim,
                 fund_input_dim=fund_dim,
                 vision_feature_dim=64,
@@ -288,6 +303,30 @@ def train_model(config, df, feature_cols, target_col, save_dir):
                 output_dim=1,
                 dropout=config['dropout']
             )
+        elif config['model_type'] == 'patchtst':
+            model = create_model(
+                config['model_type'],
+                input_dim=input_dim,
+                seq_len=config['seq_len'],
+                d_model=config.get('d_model', 128),
+                nhead=config.get('nhead', 8),
+                num_layers=config['num_layers'],
+                patch_len=config.get('patch_len', 4),
+                stride=config.get('stride', 2),
+                dim_feedforward=config.get('dim_feedforward', 256),
+                output_dim=1,
+                dropout=config['dropout']
+            )
+        elif config['model_type'] == 'nbeats':
+            model = create_model(
+                config['model_type'],
+                input_dim=input_dim,
+                seq_len=config['seq_len'],
+                hidden_dim=config['hidden_dim'],
+                num_blocks=config.get('num_blocks', 4),
+                output_dim=1,
+                dropout=config['dropout']
+            )
         elif config['model_type'] == 'tft':
             model = create_model(
                 config['model_type'],
@@ -326,8 +365,10 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         optimizer, mode='min', factor=0.5, patience=5
     )
     
-    # Early stopping
-    early_stopping = EarlyStopping(patience=config.get('early_stopping_patience', 15))
+    # Early stopping (disabled if patience=0 or no_early_stopping=True)
+    no_early_stop = config.get('no_early_stopping', False)
+    patience = 999999 if no_early_stop else config.get('early_stopping_patience', 15)
+    early_stopping = EarlyStopping(patience=patience)
     
     # Training history
     history = {
@@ -376,18 +417,20 @@ def train_model(config, df, feature_cols, target_col, save_dir):
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'val_loss': val_metrics['loss'],
-                'config': config
+                'config': config,
+                'normalization_stats': normalization_stats
             }
             
             save_path = save_dir / f"{config['model_name']}_best.pt"
             torch.save(checkpoint, save_path)
             print(f"Saved best model to {save_path}")
         
-        # Early stopping check
-        early_stopping(val_metrics['loss'])
-        if early_stopping.early_stop:
-            print(f"Early stopping at epoch {epoch + 1}")
-            break
+        # Early stopping check (skip if disabled)
+        if not no_early_stop:
+            early_stopping(val_metrics['loss'])
+            if early_stopping.early_stop:
+                print(f"Early stopping at epoch {epoch + 1}")
+                break
     
     # Load best model for final evaluation
     checkpoint = torch.load(save_dir / f"{config['model_name']}_best.pt")
@@ -418,6 +461,8 @@ def train_model(config, df, feature_cols, target_col, save_dir):
         },
         'n_parameters': n_params
     }
+    if normalization_stats is not None:
+        results['normalization_stats'] = normalization_stats
     
     results_path = save_dir / f"{config['model_name']}_results.json"
     with open(results_path, 'w') as f:
@@ -493,7 +538,7 @@ def main():
     """Main training script."""
     parser = argparse.ArgumentParser(description='Train crop futures prediction models')
     parser.add_argument('--model', type=str, default='all',
-                       choices=['all', 'dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'tft', 'gru'],
+                       choices=['all', 'dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'patchtst', 'nbeats', 'tft', 'gru'],
                        help='Model to train')
     parser.add_argument('--seed', type=int, default=None,
                        help='Random seed for reproducibility')
@@ -502,7 +547,7 @@ def main():
                        help='Commodity to predict')
     parser.add_argument('--horizon', type=int, default=1,
                        help='Prediction horizon (days)')
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv',
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv',
                        help='Path to unified data')
     parser.add_argument('--epochs', type=int, default=100,
                        help='Number of training epochs')
@@ -518,6 +563,8 @@ def main():
                        help='Number of layers')
     parser.add_argument('--dropout', type=float, default=0.2,
                        help='Dropout rate')
+    parser.add_argument('--no_early_stopping', action='store_true',
+                       help='Train for all epochs without early stopping')
     parser.add_argument('--output_dir', type=str, default='./results',
                        help='Output directory for results')
     
@@ -575,12 +622,13 @@ def main():
         'train_split': 0.7,
         'val_split': 0.15,
         'early_stopping_patience': 15,
+        'no_early_stopping': args.no_early_stopping,
         'weight_decay': 1e-5
     }
     
     # Define models to train
     if args.model == 'all':
-        models_to_train = ['dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'tft', 'gru']
+        models_to_train = ['dual_stream_lstm', 'vision_dual_stream_lstm', 'single_stream_lstm', 'resnet', 'transformer', 'patchtst', 'nbeats', 'tft', 'gru']
     else:
         models_to_train = [args.model]
     

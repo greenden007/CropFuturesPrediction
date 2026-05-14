@@ -10,14 +10,16 @@ Evaluates model predictions in a realistic trading context:
 Usage:
     python trading_simulation.py --model dual_stream_lstm --commodity corn --horizon 1
     python trading_simulation.py --results_dir ../training/results_all_models
+    python trading_simulation.py --run_all  # Run on all trained models
 """
 
 import numpy as np
 import pandas as pd
 import json
 import argparse
+import re
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 from dataclasses import dataclass
 from datetime import datetime
 import sys
@@ -244,7 +246,16 @@ class TradingStrategy:
 
 def load_model_predictions(results_dir: Path, model_name: str, commodity: str, horizon: int) -> Tuple[np.ndarray, np.ndarray]:
     """Load predictions and actuals from model results."""
-    results_file = results_dir / f"{model_name}_{commodity}_h{horizon}_results.json"
+    # Handle wandb sweep naming pattern: model_sweep_runId_commodity_hX_results.json
+    if '_sweep_' in model_name:
+        # Split model_name to get base model and run_id
+        parts = model_name.split('_sweep_')
+        base_model = parts[0]
+        run_id = parts[1]
+        results_file = results_dir / f"{base_model}_{commodity}_h{horizon}_sweep_{run_id}_results.json"
+    else:
+        # Standard pattern: model_commodity_hX_results.json
+        results_file = results_dir / f"{model_name}_{commodity}_h{horizon}_results.json"
     
     if not results_file.exists():
         raise FileNotFoundError(f"Results file not found: {results_file}")
@@ -375,6 +386,162 @@ def run_trading_simulation(
     return results
 
 
+def discover_models(results_dir: Path) -> List[Tuple[str, str, int]]:
+    """
+    Discover all trained models from results directory.
+    
+    Returns list of (model_name, commodity, horizon) tuples.
+    """
+    models = []
+    # Standard pattern: model_commodity_hX_results.json
+    standard_pattern = re.compile(r'^(\w+)_(corn|soybeans|wheat)_h(\d+)_results\.json$')
+    # Wandb sweep pattern: model_commodity_hX_sweep_<run_id>_results.json
+    sweep_pattern = re.compile(r'^(\w+)_(corn|soybeans|wheat)_h(\d+)_sweep_[a-z0-9]+_results\.json$')
+    
+    if not results_dir.exists():
+        print(f"Results directory not found: {results_dir}")
+        return models
+    
+    for file in results_dir.iterdir():
+        if file.is_file():
+            # Try standard pattern first
+            match = standard_pattern.match(file.name)
+            if match:
+                model_name, commodity, horizon = match.groups()
+                models.append((model_name, commodity, int(horizon)))
+                continue
+            
+            # Try wandb sweep pattern
+            match = sweep_pattern.match(file.name)
+            if match:
+                model_name, commodity, horizon = match.groups()
+                # For sweep results, append the run_id to model_name to distinguish different runs
+                # Extract run_id from filename
+                parts = file.name.replace('_results.json', '').split('_')
+                run_id = parts[-1]  # Last part before _results.json
+                models.append((f"{model_name}_sweep_{run_id}", commodity, int(horizon)))
+    
+    # Sort by model, commodity, horizon
+    models.sort()
+    return models
+
+
+def run_all_models(
+    results_dir: Path,
+    data_path: Path,
+    strategy_params: Dict,
+    output_dir: Path,
+    force: bool = False
+) -> pd.DataFrame:
+    """
+    Run trading simulation on all discovered models.
+    
+    Args:
+        results_dir: Directory containing model results
+        data_path: Path to unified data CSV
+        strategy_params: Trading strategy parameters
+        output_dir: Directory to save trading results
+        force: If True, re-run even if results already exist
+    """
+    models = discover_models(results_dir)
+    
+    if not models:
+        print("No trained models found in results directory!")
+        return pd.DataFrame()
+    
+    print(f"\n{'='*60}")
+    print(f"DISCOVERED {len(models)} MODELS TO EVALUATE")
+    print(f"{'='*60}")
+    
+    all_results = []
+    skipped = []
+    errors = []
+    
+    for model_name, commodity, horizon in models:
+        output_file = output_dir / f'{model_name}_{commodity}_h{horizon}_trading.json'
+        
+        # Skip if already exists and not forcing
+        if output_file.exists() and not force:
+            print(f"\nSkipping {model_name} {commodity} h{horizon} (already exists)")
+            skipped.append((model_name, commodity, horizon))
+            # Load existing result for summary
+            try:
+                with open(output_file, 'r') as f:
+                    existing = json.load(f)
+                    existing['model'] = model_name
+                    existing['commodity'] = commodity
+                    existing['horizon'] = horizon
+                    all_results.append(existing)
+            except:
+                pass
+            continue
+        
+        try:
+            results = run_trading_simulation(
+                model_name, commodity, horizon, results_dir, data_path, strategy_params
+            )
+            results['model'] = model_name
+            results['commodity'] = commodity
+            results['horizon'] = horizon
+            
+            # Save results
+            output_file.parent.mkdir(exist_ok=True)
+            with open(output_file, 'w') as f:
+                json.dump(results, f, indent=2)
+            print(f"  Saved to {output_file}")
+            
+            all_results.append(results)
+            
+        except Exception as e:
+            print(f"\nError running {model_name} {commodity} h{horizon}: {e}")
+            errors.append((model_name, commodity, horizon, str(e)))
+    
+    # Print summary
+    print(f"\n{'='*60}")
+    print("BATCH PROCESSING SUMMARY")
+    print(f"{'='*60}")
+    print(f"Total models: {len(models)}")
+    print(f"Successfully processed: {len(all_results) - len(skipped)}")
+    print(f"Skipped (already exists): {len(skipped)}")
+    print(f"Errors: {len(errors)}")
+    
+    if errors:
+        print("\nErrors encountered:")
+        for model, comm, h, err in errors:
+            print(f"  - {model} {comm} h{h}: {err}")
+    
+    # Create comparison table
+    if all_results:
+        comparison = pd.DataFrame([
+            {
+                'Model': r.get('model', ''),
+                'Commodity': r.get('commodity', ''),
+                'H': r.get('horizon', 0),
+                'Return %': f"{r.get('total_return_pct', 0):.2f}",
+                'Sharpe': f"{r.get('sharpe_ratio', 0):.3f}",
+                'Max DD %': f"{r.get('max_drawdown_pct', 0):.2f}",
+                'Trades': r.get('n_trades', 0),
+                'Win Rate': f"{r.get('win_rate', 0):.2%}",
+                'Profit Factor': f"{r.get('profit_factor', 0):.2f}"
+            }
+            for r in all_results if 'error' not in r
+        ])
+        
+        print(f"\n{'='*60}")
+        print("TRADING PERFORMANCE COMPARISON")
+        print(f"{'='*60}")
+        print(comparison.to_string(index=False))
+        
+        # Save comparison table
+        comparison_file = output_dir / 'trading_comparison_summary.csv'
+        comparison.to_csv(comparison_file, index=False)
+        print(f"\nComparison saved to {comparison_file}")
+        
+        return comparison
+    
+    return pd.DataFrame()
+
+
 def compare_strategies(
     models: List[str],
     commodity: str,
@@ -435,9 +602,9 @@ if __name__ == "__main__":
                        choices=['corn', 'soybeans', 'wheat'])
     parser.add_argument('--horizon', type=int, default=1)
     parser.add_argument('--results_dir', type=str,
-                       default='../training/results_all_models',
-                       help='Directory with model prediction results (relative to trading/ dir)')
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv')
+                       default='training/results_all_models',
+                       help='Directory with model prediction results (from repository root)')
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv')
     parser.add_argument('--threshold', type=float, default=0.0,
                        help='Prediction threshold for trading')
     parser.add_argument('--stop_loss', type=float, default=0.02,
@@ -451,13 +618,28 @@ if __name__ == "__main__":
     parser.add_argument('--models', nargs='+',
                        default=['dual_stream_lstm', 'gru', 'transformer', 'resnet'],
                        help='Models to compare')
+    parser.add_argument('--run_all', action='store_true',
+                       help='Run trading simulation on all trained models')
+    parser.add_argument('--force', action='store_true',
+                       help='Force re-run even if results already exist')
     
     args = parser.parse_args()
     
+    # Determine results and output directories
     results_dir = Path(args.results_dir)
     data_path = Path(args.data)
+    output_dir = Path('trading_results')
+    output_dir.mkdir(exist_ok=True)
     
-    if args.compare:
+    if args.run_all:
+        strategy_params = {
+            'threshold': args.threshold,
+            'stop_loss': args.stop_loss,
+            'take_profit': args.take_profit,
+            'transaction_cost': args.transaction_cost
+        }
+        run_all_models(results_dir, data_path, strategy_params, output_dir, args.force)
+    elif args.compare:
         compare_strategies(
             args.models, args.commodity, args.horizon, results_dir, data_path
         )
@@ -475,8 +657,7 @@ if __name__ == "__main__":
         )
         
         # Save results
-        output_file = Path('trading_results') / f'{args.model}_{args.commodity}_h{args.horizon}_trading.json'
-        output_file.parent.mkdir(exist_ok=True)
+        output_file = output_dir / f'{args.model}_{args.commodity}_h{args.horizon}_trading.json'
         with open(output_file, 'w') as f:
             json.dump(results, f, indent=2)
         print(f"\nResults saved to {output_file}")

@@ -72,6 +72,14 @@ def extract_predictions(
     feature_cols = sum(groups.values(), [])
     feature_cols = [c for c in feature_cols if c != target_col]
     
+    # Align with training split population
+    df = df.sort_values('date').dropna(subset=[target_col]).reset_index(drop=True)
+    n = len(df)
+    train_end = int(n * config['train_split'])
+    val_end = int(n * (config['train_split'] + config['val_split']))
+    train_df = df.iloc[:train_end].copy()
+    test_df = df.iloc[val_end:].copy()
+    
     # Infer expected input dimensions from saved model weights
     state_dict = checkpoint['model_state_dict']
     
@@ -81,7 +89,7 @@ def extract_predictions(
         
         # Get price columns (OHLCV for this commodity)
         price_cols = [c for c in groups['price'] if c != target_col] + groups['volume']
-        fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['time']
+        fund_cols = groups['wasde'] + groups['crop_progress'] + groups['weather'] + groups['image'] + groups['time']
         
         # Ensure we have the right number of columns
         # If we have more columns than expected, take the first N
@@ -94,12 +102,7 @@ def extract_predictions(
         print(f"  Price columns: {len(price_cols)} (expected {expected_price_dim})")
         print(f"  Fund columns: {len(fund_cols)} (expected {expected_fund_dim})")
         
-        # Create datasets manually
-        n = len(df)
-        train_end = int(n * config['train_split'])
-        val_end = int(n * (config['train_split'] + config['val_split']))
-        
-        test_df = df.iloc[val_end:].copy()
+        # Create test dataset for dual-stream
         test_dataset = DualStreamDataset(
             test_df, price_cols, fund_cols, target_col,
             seq_len=config['seq_len'],
@@ -197,12 +200,37 @@ def extract_predictions(
     predictions = np.array(all_preds)
     targets = np.array(all_targets)
     
+    # Denormalize using train-split target stats from training (no leakage).
+    target_mean = None
+    target_std = None
+    try:
+        with open(results_file, 'r') as f:
+            existing_results = json.load(f)
+        norm_stats = existing_results.get('normalization_stats', checkpoint.get('normalization_stats'))
+        if norm_stats is not None:
+            target_mean = norm_stats.get('target_mean')
+            target_std = norm_stats.get('target_std')
+    except Exception:
+        pass
+
+    if target_mean is None or target_std is None:
+        target_mean = float(np.mean(train_df[target_col].values))
+        target_std = float(np.std(train_df[target_col].values))
+    
+    if target_std > 0:
+        predictions = predictions * target_std + target_mean
+        targets = targets * target_std + target_mean
+    
     # Load existing results and add predictions
     with open(results_file, 'r') as f:
         results = json.load(f)
     
     results['test_metrics']['predictions'] = predictions.tolist()
     results['test_metrics']['targets'] = targets.tolist()
+    
+    # Save normalization parameters for reference
+    results['test_metrics']['target_mean'] = float(target_mean)
+    results['test_metrics']['target_std'] = float(target_std)
     
     # Save updated results
     with open(results_file, 'w') as f:
@@ -260,7 +288,7 @@ if __name__ == "__main__":
     parser.add_argument('--horizon', type=int, default=1)
     parser.add_argument('--results_dir', type=str, default='results_all_models',
                        help='Directory with saved models and results')
-    parser.add_argument('--data', type=str, default='../merged_data/daily_unified.csv')
+    parser.add_argument('--data', type=str, default='merged_data/daily_unified.csv')
     parser.add_argument('--all', action='store_true',
                        help='Extract predictions for all saved models')
     

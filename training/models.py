@@ -409,6 +409,91 @@ class TransformerModel(nn.Module):
         return output
 
 
+class PatchTSTModel(nn.Module):
+    """PatchTST-style model: patchify then encode with Transformer."""
+    def __init__(self, input_dim=30, seq_len=20, d_model=128, nhead=8, num_layers=3,
+                 patch_len=4, stride=2, dim_feedforward=256, output_dim=1, dropout=0.2, **kwargs):
+        super(PatchTSTModel, self).__init__()
+        self.seq_len = seq_len
+        self.patch_len = patch_len
+        self.stride = stride
+        self.input_dim = input_dim
+
+        # Number of temporal patches per feature channel.
+        self.n_patches = max(1, (seq_len - patch_len) // stride + 1)
+        self.patch_proj = nn.Linear(patch_len, d_model)
+        self.pos_encoder = PositionalEncoding(d_model, max_len=self.n_patches)
+
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            batch_first=True
+        )
+        self.encoder = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.head = nn.Sequential(
+            nn.Linear(d_model, d_model // 2),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(d_model // 2, output_dim)
+        )
+
+    def forward(self, x):
+        # x: (batch, seq_len, input_dim)
+        x = x.transpose(1, 2)  # (batch, input_dim, seq_len)
+        patches = x.unfold(dimension=2, size=self.patch_len, step=self.stride)  # (b, c, n_p, patch_len)
+        b, c, n_p, p = patches.shape
+        tokens = patches.reshape(b * c, n_p, p)
+        tokens = self.patch_proj(tokens)
+        tokens = self.pos_encoder(tokens)
+        encoded = self.encoder(tokens)
+        pooled = encoded.mean(dim=1).reshape(b, c, -1).mean(dim=1)  # channel-independence style pooling
+        return self.head(pooled)
+
+
+class NBeatsBlock(nn.Module):
+    def __init__(self, input_dim, hidden_dim, theta_dim):
+        super(NBeatsBlock, self).__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, theta_dim)
+        )
+        self.backcast = nn.Linear(theta_dim, input_dim)
+        self.forecast = nn.Linear(theta_dim, 1)
+
+    def forward(self, x):
+        theta = self.fc(x)
+        return self.backcast(theta), self.forecast(theta)
+
+
+class NBeatsModel(nn.Module):
+    """Simple N-BEATS style MLP stack for point forecasting."""
+    def __init__(self, input_dim=30, seq_len=20, hidden_dim=256, num_blocks=4, output_dim=1, dropout=0.0, **kwargs):
+        super(NBeatsModel, self).__init__()
+        self.flat_dim = input_dim * seq_len
+        self.blocks = nn.ModuleList(
+            [NBeatsBlock(self.flat_dim, hidden_dim, hidden_dim // 2) for _ in range(num_blocks)]
+        )
+        self.dropout = nn.Dropout(dropout)
+        self.output_dim = output_dim
+
+    def forward(self, x):
+        # x: (batch, seq_len, input_dim)
+        residual = x.reshape(x.size(0), -1)
+        forecast = torch.zeros((x.size(0), 1), dtype=x.dtype, device=x.device)
+        for block in self.blocks:
+            backcast, block_forecast = block(residual)
+            residual = self.dropout(residual - backcast)
+            forecast = forecast + block_forecast
+        return forecast
+
+
 class GatedResidualNetwork(nn.Module):
     """Core TFT block: non-linear transform with skip-connection gating."""
     def __init__(self, input_dim, hidden_dim, output_dim, dropout=0.1):
@@ -629,6 +714,8 @@ def create_model(model_name, **kwargs):
         'lstm_ablation': LSTMAblation,
         'resnet': ResNet1D,
         'transformer': TransformerModel,
+        'patchtst': PatchTSTModel,
+        'nbeats': NBeatsModel,
         'tft': TemporalFusionTransformer,
         'gru': GRUModel
     }
