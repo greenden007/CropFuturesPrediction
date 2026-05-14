@@ -21,6 +21,8 @@ data/*
 merged_data/*
 processed_data/*
 training/wandb/*
+training/results_*/
+training/best_configs/
 *.zip
 
 images/
