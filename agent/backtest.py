@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from agent.metrics import sharpe_ratio
 
 class BacktestSimulator:
     """A minimal simulator to track portfolio value over time."""
@@ -38,7 +39,7 @@ class BacktestSimulator:
             return {"Total Return": 0, "Sharpe Ratio": 0, "Max Drawdown": 0}
             
         total_return = (self.capital - self.initial_capital) / self.initial_capital
-        sharpe = returns.mean() / (returns.std() + 1e-9) * np.sqrt(252) # Annualized
+        sharpe = sharpe_ratio(returns)  # Shared metric — see agent/metrics.py
         
         cumulative = (1 + returns).cumprod()
         peak = cumulative.cummax()
