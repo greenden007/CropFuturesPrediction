@@ -21,10 +21,11 @@ data/*
 merged_data/*
 processed_data/*
 training/wandb/*
-training/results_*/
+training/results_wandb_sweep/*.pt
+training/results_/
 training/best_configs/
 *.zip
-
+*.png
 images/
 
 .DS_Store
