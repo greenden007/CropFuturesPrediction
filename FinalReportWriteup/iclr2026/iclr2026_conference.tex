@@ -1,0 +1,148 @@
+
+\documentclass{article} % For LaTeX2e
+\usepackage{iclr2026_conference,times}
+\usepackage{graphicx}
+\usepackage{float}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{fontawesome5}
+
+
+\title{Climate-Based Agricultural Futures Trading: CSCI 5527 Final Project Progress Report}
+
+% Authors must not appear in the submitted version. They should be hidden
+% as long as the \iclrfinalcopy macro remains commented out below.
+% Non-anonymous submissions will be rejected without review.
+
+\author{Rohan Cherukuri, Muhil Ramesh, Madhan Mohan, Anirudh Krishnakumar \\
+University of Minnesota\\
+Minneapolis, MN 55455, USA \\
+\texttt{\{cheru052, rames148, mohan130, krish339\}@umn.edu} \\
+}
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to \LaTeX{} to determine where to break
+% the lines. Using \AND forces a linebreak at that point. So, if \LaTeX{}
+% puts 3 of 4 authors names on the first line, and the last on the second
+% line, try using \AND instead of \And before the third author name.
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\iclrfinalcopy % Uncomment for camera-ready version, but NOT for submission.
+\begin{document}
+
+
+\maketitle
+
+\section{What Problem?}
+
+The core challenge this project addresses is the difficulty of making accurate, data-driven decisions on agricultural futures prices in a market characterized by high volatility and complex external dependencies. While traditional forecasting models rely heavily on endogenous factors ( historical price action and trading volume) these low-dimensional data sources are insufficient for capturing the full scope of market drivers.
+Agricultural markets are uniquely sensitive to exogenous shocks, particularly climatic shifts. However, two hurdles prevent these factors from being easily integrated into trading strategies. There are a vast number of environmental variables  that influence a single crop's yield. There is a significant, non-linear delay between a climate event and its eventual impact on market supply and price. The dimensionality gap and temporal lag are the biggest factors. 
+Consequently, there is a clear need for a framework that can synthesize multimodal data to provide actionable intelligence in a market where traditional heuristics often fall short.
+
+
+
+\section{Why interesting?}
+This problem is interesting because it sits at the intersection of machine learning, climate science, and financial markets, where uncertainty plays a critical role in decision-making.
+
+Agricultural commodity prices, such as wheat, corn, and soybeans,  are heavily influenced by climate variables like temperature, precipitation, and extreme weather events. However, these relationships are complex, nonlinear, and often delayed over time, making them difficult to model using traditional statistical approaches. This creates an opportunity for machine learning models to uncover patterns that are not immediately observable.
+
+Additionally, financial markets for crop futures are highly competitive and information-sensitive. If a model can successfully incorporate exogenous signals such as global climate data, it may gain an edge over models that rely solely on historical price data. This makes the problem both practically relevant and economically valuable.
+
+From a research perspective, this task is compelling because it involves:
+\begin{itemize}
+   \item Multimodal data integration (time-series climate data + financial data)
+   \item High uncertainty and noise, especially due to unpredictable weather patterns
+   \item Real-world constraints, where incorrect predictions can lead to financial loss
+\end{itemize}
+
+Finally, this project aligns with broader trends in AI toward decision-making under uncertainty and real-world deployment, similar to problems seen in energy markets, supply chains, and autonomous systems.
+
+
+\section{Prior Work}
+Prior research in this area has shown that weather and climate variables or features can be relevant when considering the relationship between those variables and crop outcomes. These can have nonlinear effects on crop outcomes, especially events like extreme temperatures or rainfall conditions~\cite{schlenker2009nonlinear}. Other research has shown that meteorological and soil data can improve agricultural prediction tasks and methods that involve attention-based LSTM with specific weather and soil inputs to predict maize production in the U.S. Corn Belt, outperforming process-based models~\cite{liu2022machine}. Another study shows the use of machine learning with country weather features for CBOT corn futures~\cite{singh2022estimating} and a wheat feature study conducted with CNNs to provide trading recommendations~\cite{thaker2024forecasting}. However, it was found that these papers are more focused on forecasting rather than a focus on trading and futures pricing. The research conducted here will give us insight into the potential variables that could influence the price of these agricultural commodities. Therefore, there is potential to be able to use this information to build a model suited for nonlinear forecasting. We can introduce a more novel study that takes into account core features like (climate, location, rainfall, etc), and specifically for helping us predict yields in a trading layer, as prior work doesn't consider this added complexity.
+
+\section{Data}
+Our dataset draws from four complementary sources designed to capture both market behavior and the exogenous signals that drive agricultural prices. Daily futures prices for corn, soybeans, and wheat from Yahoo Finance (OHLCV fields) form the core market time series used for prediction and trading evaluation. We supplement this with NOAA CPC weather outlook discussion imagery metadata—both 6–10 day and 8–14 day outlook files—which represent forward-looking climate signal availability and outlook context. Weekly USDA Crop Progress reports round out the agricultural side, providing planting and harvest percentages at national and key-state levels, while monthly USDA WASDE reports supply evolving fundamental estimates including production, exports, imports, and ending stocks.
+
+To make these sources model-ready, we built a two-stage pipeline. The first stage handles cleaning, where each source is parsed into a structured format with normalized dates and consistent crop naming conventions. The second stage handles merging, aligning the cleaned tables into unified daily and weekly datasets. Monthly WASDE figures are forward-filled until the next release, crop progress is aggregated at a weekly cadence, and weather outlook indicators are joined by date to reflect when those products were actually available. The result is a multimodal time-series dataset that connects price dynamics with fundamental and weather-driven signals in a temporally consistent way.
+
+
+
+\section{Project Goals}
+This project set out to improve how we predict agricultural futures by moving beyond raw price history and incorporating climate signals and crop fundamentals into the modeling pipeline. Rather than relying solely on historical prices, we wanted to build models for corn, soybean, and wheat futures that could account for the nonlinear and often delayed relationships between weather patterns, crop development stages, supply-demand revisions, and market movement.
+
+A second objective was to ground the evaluation in trading relevance, not just forecast accuracy. Point-error metrics alone don't tell you much about whether a model is actually useful when making decisions under uncertainty, so we shifted focus toward targets like directional movement prediction, volatility-aware behavior, and strategy-level performance under realistic time alignment constraints. Finally, we wanted the entire workflow—from raw data ingestion through to merged training tables—to be fully reproducible, so that as new data sources or features are introduced, model comparisons remain consistent and meaningful.
+
+\section{Results}
+\subsection{Ridge Regression \& Random Forest Regression}
+We built a forecasting pipeline to better understand agricultural futures, aggregating raw futures price data and weekly text reports into a unified dataset suitable for modeling. The data covers corn, soybean, and wheat futures alongside associated USDA Crop Progress text and NOAA CPC discussion text. After preprocessing and organization, we arrived at a final dataset of approximately 1,055 weekly rows, which we used for all experiments.
+
+We tested two baseline machine learning algorithms—ridge regression and random forest regression—as a foundation for comparison against the neural network architectures planned for later stages of this project. For these models, we engineered 27 features capturing lagged returns, rolling momentum, short- and long-term trends, volatility, and similar signals. We split the data chronologically, using the first 80\% for training (844 rows) and the remaining 20\% for testing (211 rows).
+
+Ridge regression achieved an RMSE of 0.0668, an MAE of 0.0510, and a directional accuracy of 56.4\% on the held-out set. While the model captured some directional information, it did not appear robust enough to fully represent the variation in futures prices. Random forest regression produced a slightly lower error—RMSE of 0.0651 and MAE of 0.0488—but directional accuracy dropped to 55\%. Both methods struggled to capture the true complexity of the data, though the results suggest that price-based signals carry meaningful predictive information worth building on.
+
+From a trading perspective, as shown in Figure 1, ridge regression produced a cumulative strategy return of 4.2675, a Sharpe ratio of 0.5565, and a maximum drawdown of -0.6559. Random forest yielded a cumulative return of 1.1153, a Sharpe ratio of 0.3133, and a maximum drawdown of -0.8584. Ridge outperformed random forest on all trading metrics. Figure 2 further illustrates that while buy-and-hold returns declined over the test window, both models remained above the buy-and-hold curve, suggesting they successfully captured some directional signal.
+
+Taken together, these results indicate that price-based features are doing most of the heavy lifting for these baseline models. They serve as a useful reference point for evaluating the stronger architectures described later in this paper.
+
+% Insert rr_curves.png here
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{rr_curves.png}
+    \caption{Ridge Regression and Random Forest Regression Curves}
+\end{figure}
+
+
+\subsection{XGBoost}
+We developed a data pipeline to ingest sources from multiple origins and produce a unified, modeling-ready dataset. The pipeline ingests raw futures prices from Yahoo Finance alongside USDA WASDE fundamental reports, cleaning and resampling daily crop price data into a consistent weekly cadence. It extracts global fundamental metrics—such as production, ending stocks, and exports—and computes market surprise signals including month-over-month estimate revisions and stocks-to-use ratios. By targeting 4-week forward-looking returns, the pipeline transforms raw agricultural data into a structured format suitable for training both the XGBoost and TFT models.
+
+For the baseline, we implemented an XGBoost (Extreme Gradient Boosting) regressor to forecast four-week forward log returns for corn, wheat, and soybeans. XGBoost was selected for its proven efficacy on tabular datasets and its native ability to handle sparse data—an important consideration given the monthly cadence of WASDE fundamental features. Its built-in \(L_1\) (Lasso) and \(L_2\) (Ridge) regularization terms help mitigate overfitting in a high-dimensional feature space, providing a robust performance benchmark against more complex architectures.
+
+Evaluation of the XGBoost baseline on the corn test set (2022--2026) revealed a significant decoupling between model performance and the underlying market trend. While the corn market experienced a cumulative Buy \& Hold return of $-69.98\%$ during this period, the model's long/short strategy remained resilient, delivering a positive cumulative return of $0.0077$. This contrast highlights the model's utility as a defensive tool: it achieved a directional accuracy of $54.3\%$ and successfully navigated a high-volatility environment in which a passive investment would have lost nearly two-thirds of its value.
+
+Peak directional accuracy reached $69\%$, and even during periods of heightened volatility such as the post-pandemic window, accuracy remained strong in the range of $66\%$--$68\%$.
+
+
+\subsection{Three Stream LSTM with Self Attention}
+A second architecture we developed is a three-stream attention-based LSTM built to capture the fast-moving dynamics of futures markets, the slower structural forces that drive agricultural prices, and the visual information embedded in weather outlook imagery. Each stream is handled by a dedicated two-layer LSTM with hidden dimension 128, processing respectively: (a) price and volume features, (b) fundamental features including WASDE reports, crop progress indicators, and weather indices, and (c) a vision stream encoding six weather outlook images per timestep via a dedicated encoder with feature dimension 64. All streams operate over a sequence length of 20 timesteps, and a dropout rate of 0.2 is applied throughout to regularize training.
+
+The defining feature of this architecture is its cross-stream attention mechanism. Rather than concatenating the three streams naively, each stream attends to the other two via four-head multi-head attention, allowing the model to learn which signals in one modality are most relevant given the current state of the others. For instance, the price stream can selectively attend to specific WASDE-linked fundamentals or visual weather patterns at timesteps where those signals are most predictive, rather than being forced to weight them uniformly. After attention, a learned gating mechanism produces three softmax-normalized weights that dynamically adjust each stream's contribution to the final representation. This is important because the relative informativeness of price, fundamentals, and vision is not fixed across market regimes or forecasting horizons. The gated streams are then concatenated and passed through a merge network with fully connected layers reducing from $3 \times \texttt{hidden\_dim}$ down to $\texttt{hidden\_dim} / 2$, followed by an output head that produces the final scalar forecast.
+
+At the one-step horizon ($H=1$) for corn, the trading results are both strong and consistent across runs. Sharpe ratios fall between 5.793 and 5.906 (mean 5.840, median 5.858), a tight range that rules out any single lucky run inflating the headline number. Total return clusters between 91.27\% and 92.96\%, and the profit factor holds between 2.81 and 2.83, meaning realized gains remain substantially larger than realized losses throughout. These are not marginal improvements over a reasonable benchmark: a Sharpe ratio approaching 6.0 with a maximum drawdown below $-1.13\%$ represents an unusually favorable risk-return profile, and the consistency of these figures across the full hyperparameter sweep suggests the result is structural rather than the product of a fortunate configuration.
+
+The secondary statistics reinforce this reading. Maximum drawdown stays within $-1.13\%$ to $-1.02\%$, win rate hovers near 53\%, and trade count is stable at 644 to 661. None of these figures suggest a signal that is sparse or brittle. A win rate of 53\% is modest in isolation, but paired with a profit factor above 2.8 it indicates that the model's correct calls are meaningfully larger than its incorrect ones, which is the more important property for a trend-following futures strategy. Worth flagging: the run with the highest Sharpe (5.906) also posts the best drawdown figure ($-1.02\%$), so the most aggressive risk-adjusted profile is not buying performance at the cost of tail exposure. This is the opposite of the usual tradeoff, and it suggests the attention mechanism is doing genuine work in filtering out low-confidence signals rather than simply increasing trade frequency.
+
+The picture at longer horizons is more interesting for what it does not show. For the three-stream architecture on corn, return and Sharpe are essentially flat from $H=1$ through $H=5$ and $H=10$ (78.19\%, 78.42\%, 77.71\% and 5.072, 5.112, 5.090, respectively), with drawdown barely moving and trade counts declining only slightly. There is no meaningful performance cliff as the prediction window extends. This stability is worth examining. Raw forecasting error does grow with horizon: MSE increases from 0.00688 at $H=1$ to 0.02634 at $H=5$ and 0.04924 at $H=10$, and directional accuracy remains near 50\% throughout, reflecting the fundamental difficulty of multi-step price prediction. Yet trading performance does not degrade commensurately. The most plausible explanation lies in the structure of the exogenous inputs. WASDE reports and crop progress indicators are updated monthly and forward-filled, providing a stable fundamental signal that does not decay in the same way that short-term price momentum does. As the forecasting horizon extends and price-derived signals become noisier, the gating mechanism can shift weight toward the fundamentals stream, preserving the quality of the trading signal even as point forecast accuracy falls. The cross-stream attention mechanism supports this interpretation: by allowing the price stream to attend selectively to fundamental and visual inputs, the model is not forced to rely on price extrapolation alone when the horizon makes such extrapolation unreliable. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.65\textwidth]{../../images/attention_vs_nbeats_patchtst_focused_h1.png}
+    \caption{Focused $H=1$ trading comparison for corn: Attention LSTM versus N-BEATS and PatchTST across Sharpe ratio, return, max drawdown, and profit factor.}
+\end{figure}
+
+
+\subsection{Multimodal Deep Learning Architecture and Backtesting}
+We first constructed a robust data ingestion pipeline that autonomously parses Yahoo Finance structures into unified return targets, while simultaneously filtering and backward-filling large-scale (50MB) global USDA WASDE databases to extract localized daily US corn fundamentals. These disparate streams—daily prices, monthly crop statistics, and NOAA climate text reports—are aligned into a unified \texttt{AgriMultimodalDataset} that safely generates masked and padded multi-dimensional PyTorch tensors without dimension collapse.
+
+At the core of the system, we designed the \texttt{MultimodalAgriFuturesNet}, a deep learning architecture that separates input streams into specialized neural encoders. Dynamic Long Short-Term Memory (LSTM) layers extract chronological patterns from numeric inputs, while unstructured climate reports are passed through a frozen HuggingFace DistilBERT \texttt{ClimateTextEncoder} to produce semantic embeddings. These divergent pathways are then fused and mapped through a Multi-Layer Perceptron (MLP) toward a predictive output. We bridged this neural engine to a quantitative backtesting framework via a \texttt{SignalGenerator} that interprets model regressions and a \texttt{BacktestSimulator} that enforces real-world constraints, including \$100K capital limits and sequential broker commissions, to accurately compute equity drawdowns and Sharpe Ratios.
+
+Training was managed by a PyTorch optimizer using the AdamW protocol with weight decay and gradient clipping. We enforced strict walk-forward validation, training sequentially on the first 80\% of the historical timeline while withholding all later data. Over 14 years of training data, the architecture proved structurally sound: sequence batches generated without error, and Mean Squared Error (MSE) decreased monotonically from $0.0070$ to $0.0025$ across training epochs.
+
+The model was subsequently evaluated on $1{,}014$ simulated out-of-sample trading days. The backtest results revealed the limits of the current architecture under live market conditions: the strategy posted a total return of $-21.35\%$ on \$100K initial capital, finishing at \$78,650.12, with an annualized Sharpe Ratio of $-0.0278$ and a peak maximum drawdown of $-72.47\%$. While these figures confirm the pipeline is fully operational and end-to-end executable, the negative Sharpe Ratio and deep drawdown indicate the model has not yet learned a statistically robust trading signal from the current feature set. These results establish a concrete quantitative baseline that future improvements—such as richer feature engineering, attention mechanisms, or ensemble methods—must surpass.
+
+\section{Reproducibility}
+
+All code is available on \href{https://github.com/greenden007/CropFuturesPrediction}{Github \faGithub}. Information for reproducing the results are in README on their own branch. Ridge Regression \& Random Forest Regression is found on the madhan.mohan/dev branch, the XGBoost on the Anirudh-branch branch, the Three Stream LSTM with Self Attention on the rc-model branch, and the Multimodal Deep Learning Architecture and Backtesting model on the branch Muhil's-branch.
+
+\bibliography{iclr2026_conference}
+\bibliographystyle{iclr2026_conference}
+
+
+\end{document}

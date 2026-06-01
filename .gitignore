@@ -11,3 +11,22 @@ venv/
 .venv/
 .env
 */.env
+
+.claude/
+CLAUDE.md
+AGENTS.md
+
+# data
+data/*
+merged_data/*
+processed_data/*
+training/wandb/*
+training/results_wandb_sweep/*.pt
+training/results_/
+training/best_configs/
+*.zip
+*.png
+images/
+
+.DS_Store
+*/.DS_Store

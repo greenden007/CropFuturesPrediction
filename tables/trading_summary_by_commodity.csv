@@ -1,0 +1,6 @@
+,Return %,Return %,Return %,Return %,Sharpe,Sharpe,Sharpe,Sharpe,Max DD %,Max DD %,Trades,Win Rate,Profit Factor
+,mean,std,min,max,mean,std,min,max,mean,std,mean,mean,mean
+Commodity,,,,,,,,,,,,,
+corn,78.148,0.288,77.71,78.42,5.091,0.018,5.072,5.112,-1.443,0.005,638.579,50.339,2.534
+soybeans,56.547,0.219,56.19,56.68,3.985,0.011,3.971,3.996,-1.783,0.005,554.053,47.439,2.256
+wheat,79.956,0.676,78.91,80.57,5.25,0.024,5.211,5.264,-2.212,0.012,650.421,50.421,2.545
